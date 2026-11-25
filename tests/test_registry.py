@@ -46,3 +46,17 @@ def test_rh_basis_needs_explicit_trust():
     quasi_hyp = get_hypothesis("quasi-GRH-dirichlet")
     quasi = dataclasses.replace(rh, id="synthetic", hypothesis=quasi_hyp)
     assert not trusting.accepts(quasi)
+
+
+@pytest.mark.parametrize("hypothesis_id", ["GRH-dedekind", "GRH-hecke"])
+def test_number_field_grh_has_no_proof(hypothesis_id):
+    assert get_hypothesis(hypothesis_id).proofs == ()
+
+
+def test_dedekind_bases_refused_even_when_trusting_alpoge():
+    trusting = Policy(
+        "t", trusted_proofs=ACCEPT_RH_ALPOGE.trusted_proofs, allow_unchecked_transcriptions=True
+    )
+    for basis_id in ["adleman_lenstra1986.A", "buchmann_shoup1996"]:
+        assert not trusting.accepts(get_basis(basis_id))
+    assert trusting.accepts(get_basis("bach1990.subgroup"))

@@ -42,6 +42,8 @@ As of 2026-11-25:
 | [primitive_root.md](primitive_root.md) | `primitive_root(p, factors)` | Dirichlet GRH |
 | [least_prime_in_progression.md](least_prime_in_progression.md) | `least_prime_in_progression(a, q)` | Dirichlet GRH; no Siegel zeros |
 | [is_prime_miller.md](is_prime_miller.md) | `is_prime_miller(n)` | Dirichlet GRH |
+| [factor_with_phi.md](factor_with_phi.md) | `factor_with_phi(n, phi)` | Dirichlet GRH |
+| [irreducible_polynomial.md](irreducible_polynomial.md) | `irreducible_polynomial(p, d)` | Dirichlet GRH, for degrees whose prime factors divide p(p − 1) |
 
 ### Optimization
 
@@ -72,6 +74,8 @@ A **spec** in `specs/` pins down the inputs, the bases for each policy, the comp
 | sqrt_mod_prime | plan | p = 2; the unconditional fallback; the no-root certificate assumes p is prime. r-th roots: test a^((p−1)/d) = 1 with d = gcd(r, p−1), factor d, handle prime powers, assemble the root. |
 | primitive_root | plan | Validate supplied factorizations; p = 2; ship the scan without a numeric Shoup ceiling until a constant is sourced. |
 | is_prime_miller | plan | Separate policy switches for the fixed-base range and the GRH range; exact integer cutoff; small-input bases; the result or witness for each early exit; which backend gives an independently checkable proof. |
+| factor_with_phi | plan | Confirm that non-splitting bases lie in a proper subgroup for every multiple of λ(n), so Bach's constant applies. |
+| irreducible_polynomial | plan | Read the Bach FOCS 1985 theorem behind Adleman–Lenstra Proposition 3; composed-product bookkeeping; whether binomial output suits callers. |
 | strongly_polynomial_lp | research | Invariants, stopping rules, witness recovery; a polynomial operation bound for the inner LPs (bounded coefficient size alone isn't enough); separate accounting of the strong-polynomial cost. |
 | sat_count_subexp | research | Pick one algorithm. Extract its recurrences, base cases and arithmetic requirements. Write tests that exercise the contraction or interpolation steps directly, not only the fallbacks. |
 | unit_distance_construction | research | Grid: store integer coordinates plus a common squared scale m and check squared distances = m exactly. Tower: an explicit field, a finite lattice enumeration, and an output-size contract (the theorem gives a family of sets, not exactly n points). |
@@ -80,7 +84,15 @@ A **spec** in `specs/` pins down the inputs, the bases for each policy, the comp
 
 - **Matrix multiplication (ω = 9/4).** Practical matrix multiplication uses the O(n³) algorithm, sometimes Strassen, tuned to the hardware. Exponent improvements below about 2.8 come with constants so large they never beat that at real sizes. A new exponent does not make `A @ B` faster.
 - **Navier–Stokes, Sogge local smoothing, Kakeya, non-sofic groups, Connes rigidity, Hodge, Fermat's Last Theorem in Lean.** These are existence or analysis results with nothing to compute that is faster or better guaranteed. We could revisit Navier–Stokes as a solver stress test later.
-- **General number-field class groups, units, and polynomial factoring over finite fields.** These need GRH for Dedekind, Hecke or Artin L-functions, which the November proof does not cover. They stay conditional.
+- **Number-field GRH applications.** The November proof covers Dirichlet L-functions only. These need GRH for Dedekind, Hecke or Artin L-functions, so they stay conditional. The registry records them under `GRH-dedekind` / `GRH-hecke`, which have no proofs:
+  - class groups and units (PARI `bnfinit`, Magma), and the certification steps they skip;
+  - CM-method curve generation and rigorous SEA point counting;
+  - Jao–Miller–Venkatesan random self-reducibility of elliptic-curve discrete log;
+  - quantum attacks on ideal-lattice and isogeny schemes;
+  - Koiran's Nullstellensatz-in-AM, and Bürgisser's link between algebraic and Boolean P vs NP;
+  - Artin's primitive-root conjecture (Hooley), which is what BIKE-style "2 is a primitive root" assumptions rest on;
+  - general deterministic polynomial factoring over finite fields (Rónyai, Evdokimov), which needs non-residues in extension fields (Buchmann–Shoup);
+  - Adleman–Lenstra Algorithm A for arbitrary degrees. This one is inferred and needs confirming; see `irreducible_polynomial.md`.
 
 ## Shared design rules
 

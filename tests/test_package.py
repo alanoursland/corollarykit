@@ -22,6 +22,8 @@ STUBS = [
     ("corollarykit.primes", "prime_exists_between", (10, 20)),
     ("corollarykit.primes", "least_prime_in_progression", (1, 4)),
     ("corollarykit.primes", "is_prime_miller", (97,)),
+    ("corollarykit.primes", "factor_with_phi", (15, 8)),
+    ("corollarykit.finite_fields", "irreducible_polynomial", (7, 3)),
     ("corollarykit.modular", "sqrt_mod_prime", (2, 7)),
     ("corollarykit.modular", "nth_root_mod_prime", (2, 3, 7)),
     ("corollarykit.modular", "primitive_root", (7,)),

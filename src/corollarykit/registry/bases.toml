@@ -55,6 +55,16 @@ source = "OpenAI, openai/math, released 2026-10-06"
 status = "claimed"
 statement_match = "unchecked"
 
+[hypotheses.GRH-dedekind]
+statement = "For every number field K, all nontrivial zeros of the Dedekind zeta function of K have real part 1/2."
+note = "Needed by class-group algorithms, effective Chebotarev (incl. Kummer fields), nonresidues in extension fields. No proof claimed as of 2026-11-25."
+proofs = []
+
+[hypotheses.GRH-hecke]
+statement = "For every number field K and Hecke character chi of K, all nontrivial zeros of L(s, chi) have real part 1/2."
+note = "Needed by Bach's class-group generator bound and isogeny-graph expansion results. No proof claimed as of 2026-11-25."
+proofs = []
+
 # --------------------------------------------------------------------- bases
 
 [bases.rosser_schoenfeld1962.lower]
@@ -148,3 +158,45 @@ domain = "n < 3317044064679887385961981"
 source = "Sorenson & Webster, Math. Comp. 86 (2017)"
 status = "classical"
 transcription_checked = false
+
+[bases.bach1990.subgroup]
+statement = "every proper subgroup of (Z/nZ)^* omits some a < 2 (ln n)^2"
+domain = "n >= 2 (exact range to be recorded from source)"
+hypothesis = "GRH-dirichlet"
+source = "E. Bach, Math. Comp. 55 (1990)"
+status = "classical"
+transcription_checked = false
+
+[bases.miller1976.phi]
+statement = "given a multiple m of lambda(n), some base below the Bach subgroup bound splits n (odd n, >= 2 distinct prime factors)"
+domain = "n odd, not a prime power"
+hypothesis = "GRH-dirichlet"
+source = "G. L. Miller, J. Comput. System Sci. 13 (1976); explicit constant via bach1990.subgroup"
+status = "classical"
+transcription_checked = false
+note = "To verify: non-splitting bases lie in a proper subgroup for every multiple of lambda(n)."
+
+[bases.lidl_niederreiter.binomial]
+statement = "x^t - a is irreducible over F_q iff every prime factor of t divides ord(a) but not (q-1)/ord(a), and q = 1 mod 4 when 4 | t"
+domain = "t >= 2, a in F_q^*"
+source = "Lidl & Niederreiter, Finite Fields, Theorem 3.75"
+status = "classical"
+transcription_checked = false
+
+[bases.adleman_lenstra1986.A]
+statement = "a degree-d irreducible polynomial over F_p can be constructed deterministically in (d log p)^c steps"
+domain = "p prime, d >= 1"
+hypothesis = "GRH-dedekind"
+source = "Adleman & Lenstra, STOC 1986, Theorem 1 / Proposition 3"
+status = "classical"
+transcription_checked = false
+note = "Hypothesis inferred: Proposition 3 needs primes q with p inert in a subfield of Q(zeta_q), a Chebotarev condition in non-abelian Kummer fields."
+
+[bases.buchmann_shoup1996]
+statement = "a k-th power nonresidue in F_(p^n) can be found deterministically in k^A (n log p)^O(1) time"
+domain = "k prime, k | p^n - 1"
+hypothesis = "GRH-dedekind"
+source = "Buchmann & Shoup, Math. Comp. 65 (1996)"
+status = "classical"
+transcription_checked = false
+note = "Hypothesis taken from a summary of the paper; full text not yet read."
