@@ -26,7 +26,7 @@ As of 2026-11-25:
 | OpenAI quasi-GRH (Oct 6) | No zeros with Re s > 7/8 for zeta and all Dirichlet L-functions (the repo copy states 11/12) | `claimed` |
 | OpenAI no-Siegel-zeros (Oct 6) | Siegel zeros do not exist for zeta and many Dirichlet L-functions | `claimed` |
 | OpenAI strongly polynomial LP (Nov 24) | Smale's 9th problem | `claimed` (Lean covers rational inputs) |
-| ETH disproof (Oct) | Subexponential #k-SAT | `claimed` |
+| ETH disproof (Oct; separate OpenAI and Anthropic claims) | Subexponential #k-SAT | `claimed` (under review by Impagliazzo, Paturi and Williams) |
 | Unit distance disproof (May 20) | Erdős unit distance conjecture is false | `peer-verified` |
 
 ## Algorithms
