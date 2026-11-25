@@ -59,6 +59,23 @@ These are reference implementations of results whose gains only show up at sizes
 | [sat_count_subexp.md](sat_count_subexp.md) | `count_sat_subexp(cnf)` | ETH disproof |
 | [unit_distance_construction.md](unit_distance_construction.md) | `unit_distance_points(...)` | Unit distance disproof |
 
+## Readiness
+
+A **spec** in `specs/` pins down the inputs, the bases for each policy, the computation, the fallback, and what a verifier can establish. The plans in this directory are **research plans**. They become specs only once the decisions listed below are written down.
+
+| Plan | Stage | Decisions still needed |
+|---|---|---|
+| lp_certificate_checker | **spec**: [specs/lp_certificate_checker.md](specs/lp_certificate_checker.md) | none for the standard-form core. Inequality form, general-form conversion with its mapping back, rational repair (needs the solver's basis) and MPS input each get their own spec. |
+| prime_count_interval | **spec**: [specs/prime_count_interval.md](specs/prime_count_interval.md) | copy the ⚠ constants from their sources |
+| nth_prime_bounds | plan | Integer predicates for tightening the bracket. Each side keeps its classical endpoint until a tighter one is proven, including when the RH predicate never crosses inside the classical bracket. Exact counting backend. (The sieve now runs on (lo, hi].) |
+| next_prime, least_prime_in_progression | plan | What counts as a proven answer under each policy: BPSW may reject candidates but never accept one under a "prime" promise. Companion APIs (`min=`, bit-width) get no ceiling from the least-prime theorem, so they need their own bound, a search budget, or a no-result outcome. |
+| sqrt_mod_prime | plan | p = 2; the unconditional fallback; the no-root certificate assumes p is prime. r-th roots: test a^((p−1)/d) = 1 with d = gcd(r, p−1), factor d, handle prime powers, assemble the root. |
+| primitive_root | plan | Validate supplied factorizations; p = 2; ship the scan without a numeric Shoup ceiling until a constant is sourced. |
+| is_prime_miller | plan | Separate policy switches for the fixed-base range and the GRH range; exact integer cutoff; small-input bases; the result or witness for each early exit; which backend gives an independently checkable proof. |
+| strongly_polynomial_lp | research | Invariants, stopping rules, witness recovery; a polynomial operation bound for the inner LPs (bounded coefficient size alone isn't enough); separate accounting of the strong-polynomial cost. |
+| sat_count_subexp | research | Pick one algorithm. Extract its recurrences, base cases and arithmetic requirements. Write tests that exercise the contraction or interpolation steps directly, not only the fallbacks. |
+| unit_distance_construction | research | Grid: store integer coordinates plus a common squared scale m and check squared distances = m exactly. Tower: an explicit field, a finite lattice enumeration, and an output-size contract (the theorem gives a family of sets, not exactly n points). |
+
 ## Considered and dropped
 
 - **Matrix multiplication (ω = 9/4).** Practical matrix multiplication uses the O(n³) algorithm, sometimes Strassen, tuned to the hardware. Exponent improvements below about 2.8 come with constants so large they never beat that at real sizes. A new exponent does not make `A @ B` faster.
