@@ -1,0 +1,150 @@
+# corollarykit basis registry.
+#
+# A *hypothesis* is an unproved (or newly proved) statement such as RH.
+# Each hypothesis lists the *proofs* claimed for it, each with its own status.
+#
+# A *basis* is a theorem an algorithm relies on. A basis has its own status
+# (for a conditional theorem like "RH implies X", the implication itself is
+# usually classical) and optionally a hypothesis. Its effective status is the
+# weaker of its own status and the best accepted proof of its hypothesis.
+#
+# transcription_checked = false means the statement/constants below have NOT
+# yet been checked against the cited source. Policies refuse such bases unless
+# explicitly told otherwise. Flip it only with a citation to page/equation.
+#
+# Status vocabulary (strongest first): classical, peer-verified, lean-compiled, claimed.
+# A lean-compiled proof with statement_match = "unchecked" counts as claimed.
+
+# ---------------------------------------------------------------- hypotheses
+
+[hypotheses.RH]
+statement = "All nontrivial zeros of the Riemann zeta function have real part 1/2."
+
+[[hypotheses.RH.proofs]]
+id = "alpoge-claude-2026"
+source = "L. Alpöge (with Claude), alpo.ge/remark.pdf and Lean archive, 2026-11-20"
+status = "lean-compiled"
+statement_match = "unchecked"
+
+[hypotheses.GRH-dirichlet]
+statement = "For every Dirichlet character chi, all nontrivial zeros of L(s, chi) have real part 1/2."
+note = "Does NOT cover Dedekind, Hecke, Artin or other automorphic L-functions."
+
+[[hypotheses.GRH-dirichlet.proofs]]
+id = "alpoge-claude-2026"
+source = "L. Alpöge (with Claude), alpo.ge/remark.pdf and Lean archive, 2026-11-20"
+status = "lean-compiled"
+statement_match = "unchecked"
+
+[hypotheses.quasi-GRH-dirichlet]
+statement = "No zeta or Dirichlet L-function has a zero with real part > 11/12."
+note = "OpenAI's catalog states 7/8; the paper in the repository states 11/12. The registry records the weaker statement."
+
+[[hypotheses.quasi-GRH-dirichlet.proofs]]
+id = "openai-quasi-rh-2026"
+source = "OpenAI, 'The Quasi-Riemann Hypothesis', openai/math, released 2026-10-06"
+status = "claimed"
+statement_match = "unchecked"
+
+[hypotheses.no-siegel-zeros]
+statement = "Siegel zeros do not exist (exact scope to be recorded from the source)."
+
+[[hypotheses.no-siegel-zeros.proofs]]
+id = "openai-siegel-2026"
+source = "OpenAI, openai/math, released 2026-10-06"
+status = "claimed"
+statement_match = "unchecked"
+
+# --------------------------------------------------------------------- bases
+
+[bases.rosser_schoenfeld1962.lower]
+statement = "pi(x) > x / ln x"
+domain = "x >= 17"
+source = "Rosser & Schoenfeld, Illinois J. Math. 6 (1962)"
+status = "classical"
+transcription_checked = false
+
+[bases.rosser_schoenfeld1962.upper]
+statement = "pi(x) < 1.25506 x / ln x"
+domain = "x > 1"
+source = "Rosser & Schoenfeld, Illinois J. Math. 6 (1962)"
+status = "classical"
+transcription_checked = false
+
+[bases.dusart2010.lower]
+statement = "pi(x) >= x/ln x * (1 + 1/ln x + 2/ln^2 x)"
+domain = "x >= 88789"
+source = "P. Dusart, arXiv:1002.0442 (2010)"
+status = "classical"
+transcription_checked = false
+
+[bases.dusart2010.upper]
+statement = "pi(x) <= x/ln x * (1 + 1/ln x + 2.334/ln^2 x)"
+domain = "x >= 2953652287"
+source = "P. Dusart, arXiv:1002.0442 (2010)"
+status = "classical"
+transcription_checked = false
+
+[bases.schoenfeld1976]
+statement = "|pi(x) - li(x)| < sqrt(x) ln(x) / (8 pi), li = principal-value integral from 0"
+domain = "x >= 2657"
+hypothesis = "RH"
+source = "L. Schoenfeld, Math. Comp. 30 (1976)"
+status = "classical"
+transcription_checked = false
+
+[bases.cms2019]
+statement = "p_{k+1} - p_k < (22/25) sqrt(p_k) ln(p_k)"
+domain = "p_k > 3"
+hypothesis = "RH"
+source = "Carneiro, Milinovich & Soundararajan, Comment. Math. Helv. (2019)"
+status = "classical"
+transcription_checked = false
+
+[bases.bach1990.nonresidue]
+statement = "the least quadratic nonresidue mod a prime p is < 2 (ln p)^2"
+domain = "p odd prime"
+hypothesis = "GRH-dirichlet"
+source = "E. Bach, Math. Comp. 55 (1990)"
+status = "classical"
+transcription_checked = false
+
+[bases.bach1990.miller]
+statement = "an odd composite n that is not a prime power has a strong witness a < 2 (ln n)^2"
+domain = "n odd composite, not a prime power"
+hypothesis = "GRH-dirichlet"
+source = "E. Bach, Math. Comp. 55 (1990)"
+status = "classical"
+transcription_checked = false
+
+[bases.shoup1992]
+statement = "least primitive root g(p) = O(r^4 (log r + 1)^4 (log p)^2), r = omega(p-1)"
+domain = "p prime"
+hypothesis = "GRH-dirichlet"
+source = "V. Shoup, Math. Comp. 58 (1992)"
+status = "classical"
+transcription_checked = false
+note = "Not explicit: no numeric ceiling may be derived from this basis until a constant is sourced."
+
+[bases.bach_sorenson1996]
+statement = "the least prime p = a mod q satisfies p <= 2 (q ln q)^2"
+domain = "to be recorded from source"
+hypothesis = "GRH-dirichlet"
+source = "Bach & Sorenson, Math. Comp. 65 (1996)"
+status = "classical"
+transcription_checked = false
+
+[bases.lls2015]
+statement = "the least prime p = a mod q satisfies p <= (phi(q) ln q)^2"
+domain = "q >= 4 (to be confirmed from source)"
+hypothesis = "GRH-dirichlet"
+source = "Lamzouri, Li & Soundararajan, Math. Comp. 84 (2015)"
+status = "classical"
+transcription_checked = false
+
+[bases.sorenson_webster2017]
+statement = "the first 13 primes as Miller-Rabin bases decide primality for n < 3317044064679887385961981"
+domain = "n < 3317044064679887385961981"
+source = "Sorenson & Webster, Math. Comp. 86 (2017)"
+status = "classical"
+transcription_checked = false
