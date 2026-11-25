@@ -27,11 +27,9 @@ The cost is O(polylog x), since they are closed formulas. For x = 10¹⁰⁰ the
 
 ## What changes it
 
-**RH** (Alpöge–Claude, Nov 2026, `lean-compiled`) makes Schoenfeld's 1976 conditional bound unconditional:
+**Basis `schoenfeld1976`:** |π(x) − li(x)| < √x · ln x / (8π) for x ≥ 2657, assuming RH. RH is supplied by Alpöge–Claude (Nov 2026, `lean-compiled`, `statement_match = unchecked`). Under the default policy this basis is treated as `claimed`. Results based on it are labeled "RH (Alpöge–Claude)". They are not called unconditional.
 
-    |π(x) − li(x)| < √x · ln x / (8π)        for x ≥ 2657
-
-A weaker basis is the claimed quasi-RH zero-free region Re s > 7/8 (OpenAI, Oct 2026, `claimed`), which gives |π(x) − li(x)| = O(x^(7/8) log² x). We have not located explicit constants for it, so it cannot produce a printed interval yet. Track it, but don't implement it.
+A weaker basis is the claimed quasi-RH zero-free region Re s > σ₀ (OpenAI, Oct 2026, `claimed`). It gives |π(x) − li(x)| = O(x^σ₀ · log² x), using σ₀ = 11/12 as stated in the repository paper (7/8 per the catalog). We have not located explicit constants for it, so it cannot produce a printed interval yet. Track it, but don't implement it.
 
 ## New implementation
 

@@ -25,6 +25,8 @@ Every general method has an operation count that grows with L. Whether LP can be
 Stated theorem (from `introduction.tex`): a deterministic strongly polynomial algorithm returns one of these certificates:
 1. A strictly complementary primal–dual pair (x, y), with slack s + y > 0.
 2. An unbounded ray r: Ar ≤ 0 and cᵀr > 0.
+
+   **A ray by itself does not prove unboundedness.** Example: maximize y subject to x ≤ 0 and −x ≤ −1 (that is, x ≥ 1). The direction (0, 1) satisfies Ar ≤ 0 and cᵀr > 0, but the LP is infeasible. Our solver must return a **feasible point x₀ (Ax₀ ≤ b) together with r**, as the Lean optimization theorem does: "a feasible point and a ray". If the paper's algorithm yields only r, add an explicit feasibility phase and return its x₀.
 3. A Farkas vector y ≥ 0 with Aᵀy = 0, bᵀy < 0, and |supp y| ≤ 1 + rank A.
 
 **Lean:** comparator theorems `OAI.Optimization.LinearProgramming.strongly_polynomial_feasibility` and `..._optimization`. They cover **rational inputs only**: instruction count polynomial in m + d, and stored rationals of bit length polynomial in the input length. The real-coefficient case is not formalized. They use only the standard axioms (propext, Quot.sound, Classical.choice).
@@ -50,6 +52,7 @@ We will implement it in exact rationals (the formalized case), with an interior-
 ## Testing
 
 - Every output must pass `check_lp_certificate`.
+- Solver output is in inequality form (max cᵀx, Ax ≤ b). Either the checker accepts that form directly, or a documented, tested conversion maps the certificate into the checker's standard form.
 - Results must agree with exact SoPlex on Netlib, and on families built to have huge coefficients and small dimensions. That is where this algorithm should eventually win.
 
 ## Open questions

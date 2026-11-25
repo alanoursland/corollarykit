@@ -15,7 +15,7 @@ Deterministic primality test: a proven answer for any n, with a compositeness wi
 
 ## What changes it
 
-**GRH for Dirichlet L-functions** (Alpöge–Claude, `lean-compiled`) makes Miller (1976) with Bach's (1990) explicit constant unconditional:
+**Basis `bach1990.miller`:** Miller (1976) with Bach's (1990) explicit constant, assuming GRH for Dirichlet L-functions (Alpöge–Claude, `lean-compiled`, `statement_match = unchecked`):
 
     if n is an odd composite, some base a < 2·(ln n)² is a strong-pseudoprime witness
 
@@ -31,7 +31,13 @@ The second basis is quasi-GRH, Re s > 7/8 (OpenAI, Oct 2026, `claimed`), which g
 4. Otherwise, run the strong test for every **prime** base a < 2·ln²n.
    - Prime bases suffice: the non-witnesses lie in a proper subgroup H. If every prime below B were in H, every integer below B would be, contradicting Bach's bound.
    - Return `Composite(witness=a)` on the first failure. Anyone can recheck the witness with one modular exponentiation.
-5. If every base passes, return `Prime(bases=[...])`. There's no compact certificate: checking means running the test again.
+5. If every base passes, return `Prime(bases=[...])`.
+
+**Certificate scope:**
+- `Composite` is `full`: the witness proves compositeness with no basis needed.
+- `Prime` from step 4 is `basis`: it is proven only if `bach1990.miller` holds, and checking it means running the test again.
+- `Prime` from step 3 is `full` under the classical Sorenson–Webster computation.
+- A caller who needs a basis-free proof that n is prime should use ECPP or Pratt certificates.
 
 **Complexity:** about π(2 ln²n) ≈ 2 ln²n / ln(2 ln²n) bases, each costing O(log n · M(log n)). The total is **Õ(log⁴ n)** bit operations, deterministic and proven, against Õ(log⁶ n) for AKS.
 

@@ -23,7 +23,7 @@ As of 2026-11-25:
 | Result | Hypothesis settled | Status |
 |---|---|---|
 | Alpöge–Claude (Nov 20) | RH, and GRH for **Dirichlet** L-functions only (not Dedekind, Hecke or Artin) | `lean-compiled` |
-| OpenAI quasi-GRH (Oct 6) | No zeros with Re s > 7/8 for zeta and all Dirichlet L-functions (the repo copy states 11/12) | `claimed` |
+| OpenAI quasi-GRH (Oct 6) | No zeros with Re s > σ₀ for zeta and all Dirichlet L-functions. The registry uses σ₀ = 11/12, as stated in the repository paper; the catalog says 7/8 | `claimed` |
 | OpenAI no-Siegel-zeros (Oct 6) | Siegel zeros do not exist for zeta and many Dirichlet L-functions | `claimed` |
 | OpenAI strongly polynomial LP (Nov 24) | Smale's 9th problem | `claimed` (Lean covers rational inputs) |
 | ETH disproof (Oct; separate OpenAI and Anthropic claims) | Subexponential #k-SAT | `claimed` (under review by Impagliazzo, Paturi and Williams) |
@@ -65,6 +65,33 @@ These are reference implementations of results whose gains only show up at sizes
 - **Navier–Stokes, Sogge local smoothing, Kakeya, non-sofic groups, Connes rigidity, Hodge, Fermat's Last Theorem in Lean.** These are existence or analysis results with nothing to compute that is faster or better guaranteed. We could revisit Navier–Stokes as a solver stress test later.
 - **General number-field class groups, units, and polynomial factoring over finite fields.** These need GRH for Dedekind, Hecke or Artin L-functions, which the November proof does not cover. They stay conditional.
 
-## Shared design rule
+## Shared design rules
 
-Every function declares its **bases**: the theorems it relies on, each with an explicit bound and a status. A strict policy uses only `classical` bases and falls back to unconditional algorithms. Where possible, output carries a certificate that can be checked without trusting any of the new results.
+### Bases
+
+A **basis** is a single theorem that an algorithm relies on. Every function declares its bases, and every result reports the **one basis it actually used**. "Unconditional" in these plans means only "proved by a basis whose status the active policy accepts." No plan should call a bound unconditional without saying which basis it rests on.
+
+Each basis record holds:
+
+| Field | Example |
+|---|---|
+| `id` | `bach1990.miller` |
+| `statement` | exact text of the bound, with its constant and domain: "if n is an odd composite, not a prime power, some a < 2(ln n)² is a strong witness" |
+| `hypothesis` | the exact hypothesis, by L-function family: `GRH-dirichlet`, `RH`, `zero-free(Re s > σ₀, dirichlet)`, `no-siegel-zeros`, or `none` |
+| `hypothesis_source` | paper, version or date, and for Lean the theorem name and commit: Alpöge, alpo.ge/remark.pdf + Lean archive, 2026-11-20 |
+| `status` | from the vocabulary above |
+| `statement_match` | whether anyone has checked that the formal or claimed statement implies `statement`: `unchecked`, `checked-by:<who>` |
+
+**Rules:**
+- A `lean-compiled` basis with `statement_match = unchecked` is treated as `claimed` by the default policy. It is accepted only when the user turns it on explicitly.
+- When sources disagree on a statement, the registry uses the **weaker** one. Quasi-GRH is recorded as σ₀ = 11/12, which is what the paper in OpenAI's repository states. 7/8 appears only in OpenAI's catalog and press coverage, and is noted as an alternative statement.
+
+### Certificate scope
+
+Every certificate declares what an independent checker can establish from it:
+
+- **`membership`:** the output has the required property: it is prime, it lies in the progression, or it is a primitive root. Checking this needs no 2026 result.
+- **`full`:** the whole claim, including minimality ("least ..."). This needs a witness that rules out every smaller candidate.
+- **`basis`:** the claim depends on a theorem (a search ceiling or a no-witness-exists bound), so a checker must trust the named basis.
+
+Where it's affordable, an output carries a certificate that can be checked without trusting any of the new results.

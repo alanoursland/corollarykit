@@ -24,11 +24,9 @@ The total is O(log² p · M(log p)) bit operations worst case, given z. It is La
 
 ## What changes it
 
-**GRH for Dirichlet L-functions** (Alpöge–Claude, `lean-compiled`). The characters mod p are Dirichlet characters, so this is within the proof's claimed scope. Ankeny–Montgomery–Bach then become unconditional:
+**Basis `bach1990.nonresidue`:** n(p) < 2 · (ln p)², assuming GRH for Dirichlet L-functions. The characters mod p are Dirichlet characters, so this is within the claimed scope of Alpöge–Claude (`lean-compiled`, `statement_match = unchecked`).
 
-    n(p) < 2 · (ln p)²        (Bach 1990)
-
-The second basis is quasi-GRH, Re s > 7/8 (OpenAI, Oct 2026, `claimed`): n(p) ≤ C·(ln p)^32. That is polynomial, but useless as a printed ceiling. Credit to OpenAI's October manuscript: it was the first to make this algorithm deterministic polynomial time. November improves the constant.
+The second basis is quasi-GRH, Re s > σ₀ (OpenAI, Oct 2026, `claimed`; σ₀ = 11/12 in the registry). The exposition gives n(p) ≤ C·(ln p)^32, which was derived for 7/8. The exponent has to be re-derived for 11/12 before this basis is enabled. That is polynomial, but useless as a printed ceiling. Credit to OpenAI's October manuscript: it was the first to make this algorithm deterministic polynomial time. November improves the constant.
 
 ## New implementation
 

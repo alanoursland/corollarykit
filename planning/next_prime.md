@@ -14,7 +14,7 @@ The worst-case ceiling comes from unconditional gap bounds:
 
 ## What changes it
 
-**RH** (Alpöge–Claude, `lean-compiled`) makes Carneiro–Milinovich–Soundararajan (2019) unconditional:
+**Basis `cms2019`:** Carneiro–Milinovich–Soundararajan (2019), assuming RH. RH is supplied by Alpöge–Claude (`lean-compiled`, `statement_match = unchecked`).
 
     p_{k+1} − p_k < (22/25) · √p_k · ln p_k        for p_k > 3
 

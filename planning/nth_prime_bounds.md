@@ -31,7 +31,10 @@ The sieve window is unknown in advance. Implementations either guess and retry, 
 **Exact `nth_prime(n)`:**
 1. Compute `lo, hi` as above.
 2. Find c = π(lo) exactly, using LMO (or `primesieve` when available).
-3. Run a segmented sieve on [lo, hi] and take the (n − c)th prime in it.
+3. If c == n, return `lo`. This case requires `lo` to be prime, since π(lo) = n and π(lo − 1) < n; assert that.
+4. Otherwise c < n. Run a segmented sieve on the **half-open interval (lo, hi]** and take the (n − c)th prime in it. π(lo) already counts `lo` if it is prime, so `lo` must be left out.
+
+Test case: n = 2 with bracket [2, 3]. Then c = π(2) = 1, the sieve runs on (2, 3], and the first prime in it is 3. Including `lo` would wrongly return 2.
 
 The memory is **O(√n · polylog n), known before the sieve starts**, with no retries.
 

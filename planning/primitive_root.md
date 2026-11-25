@@ -18,7 +18,7 @@ for g = 2, 3, 4, ...:
 
 ## What changes it
 
-**GRH for Dirichlet L-functions** (Alpöge–Claude, `lean-compiled`) makes Shoup (1992) unconditional:
+**Basis `shoup1992`**, assuming GRH for Dirichlet L-functions (Alpöge–Claude, `lean-compiled`, `statement_match = unchecked`):
 
     g(p) = O(ω⁴ · (log ω + 1)⁴ · (log p)²) = O((log p)⁶)
 
@@ -30,7 +30,12 @@ for g = 2, 3, 4, ...:
 
 1. If p = 2q + 1 with q prime, return `least_nonresidue(p)` from `sqrt_mod_prime`, with ceiling 2·ln²p.
 2. Otherwise, run the standard scan with a ceiling from Shoup's bound.
-3. Return g with a certificate: the list `[(q, pow(g,(p-1)/q,p))]`, which anyone can verify, plus the factorization of p−1. Checking the factorization needs primality certificates for each q (Pratt-style). Include those optionally.
+3. Return g with a certificate.
+
+**Certificate scope:**
+- **`membership`** (always included): g is a primitive root. The certificate is the factorization of p−1 and the list `[(q, pow(g,(p-1)/q,p))]`, with every value ≠ 1. Checking the factorization needs primality certificates for each q (Pratt-style), included optionally.
+- **`full`** (optional): g is the *least* primitive root. For each g′ < g, give one q with g′^((p−1)/q) ≡ 1 (mod p). That costs one modular exponentiation per smaller candidate to check, and needs no basis.
+- In the safe-prime case, the `full` certificate is just the Legendre symbol (g′/p) = +1 for each 2 ≤ g′ < g, excluding −1.
 
 **Complexity:**
 - Deterministic worst case **O(log⁶ p) candidates × O(ω·log p·M(log p))**, which is polynomial in log p given the factorization. For safe primes, O(log² p) candidates. Previously the worst case was exponential.

@@ -35,6 +35,8 @@ Extra pieces:
 
 - Netlib LP set with known exact optima (exact values published by Koch, 2004).
 - Hand-built infeasible and unbounded cases.
+- **A ray without a feasible point must be rejected.** In inequality form: maximize y subject to x ≤ 0 and −x ≤ −1. The ray (0, 1) passes the ray checks, but no feasible point exists, so an "unbounded" claim must fail. Claims that omit x₀, or give an x₀ that breaks a constraint, must fail.
+- Both forms, standard (Ax = b, x ≥ 0) and inequality (Ax ≤ b), with their own certificate checks, so solver output never needs an untested conversion.
 - Fuzzing: random LPs, solved with HiGHS through SciPy, repaired, then checked.
 
 ## Open questions
