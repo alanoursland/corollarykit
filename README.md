@@ -25,7 +25,14 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Requires Python ≥ 3.11. Optional extras: `arb` (python-flint, for rigorous ball arithmetic) and `fast` (gmpy2).
+Requires Python ≥ 3.11. Optional extras: `arb` (python-flint, for rigorous ball arithmetic), `fast` (gmpy2), and `oracles` (independent implementations used by the tests).
+
+Tests run against the installed package (the `src/` tree is not on the path). Useful switches:
+
+- `pytest -m "slow or not slow"`: include nightly-only tests
+- `HYPOTHESIS_PROFILE=ci|nightly`: property-test settings
+- `COROLLARYKIT_REQUIRE_ORACLES=1`: fail, rather than skip, when an oracle library is missing
+- `python tests/data/regen.py`: regenerate the generated reference data
 
 ## License
 

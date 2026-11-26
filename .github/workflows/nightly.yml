@@ -1,0 +1,34 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: "17 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    env:
+      COROLLARYKIT_REQUIRE_ORACLES: "1"
+      HYPOTHESIS_PROFILE: nightly
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install build
+      - run: python -m build
+      - run: pip install "$(ls dist/*.whl)[test,arb,oracles]"
+      - name: All tests, including slow
+        run: pytest -m "slow or not slow"
+      - name: Benchmarks
+        run: pytest -m bench --benchmark-json=bench.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench
+          path: bench.json
+          if-no-files-found: ignore

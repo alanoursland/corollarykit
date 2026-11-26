@@ -24,6 +24,9 @@ jobs:
     # Tests run against the built wheel, never the source tree, so packaging
     # mistakes (e.g. bases.toml missing from the wheel) fail CI.
     runs-on: ubuntu-latest
+    env:
+      COROLLARYKIT_REQUIRE_ORACLES: "1"
+      HYPOTHESIS_PROFILE: ci
     strategy:
       fail-fast: false
       matrix:
@@ -36,5 +39,5 @@ jobs:
       - run: pip install build twine
       - run: python -m build
       - run: twine check --strict dist/*
-      - run: pip install "$(ls dist/*.whl)[test,arb]"
+      - run: pip install "$(ls dist/*.whl)[test,arb,oracles]"
       - run: pytest

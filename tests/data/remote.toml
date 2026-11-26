@@ -1,0 +1,9 @@
+# Large reference data sets, fetched by slow tests only and checked against sha256.
+#
+# [[remote]]
+# name = "feitsma_galway_spsp2.txt"
+# url = "..."
+# sha256 = "..."
+# size = 0
+
+remote = []

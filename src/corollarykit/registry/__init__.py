@@ -7,10 +7,13 @@ the wheel. See that file's header for the model.
 from __future__ import annotations
 
 import tomllib
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import IntEnum
+from fractions import Fraction
 from functools import cache
 from importlib.resources import files
+from types import MappingProxyType
 from typing import Any
 
 
@@ -54,15 +57,45 @@ class Hypothesis:
 
 
 @dataclass(frozen=True)
+class Domain:
+    """A numeric range on the basis's size variable. Missing bounds are unbounded."""
+
+    ge: int | None = None
+    gt: int | None = None
+    le: int | None = None
+    lt: int | None = None
+
+    def contains(self, x: int) -> bool:
+        return (
+            (self.ge is None or x >= self.ge)
+            and (self.gt is None or x > self.gt)
+            and (self.le is None or x <= self.le)
+            and (self.lt is None or x < self.lt)
+        )
+
+
+@dataclass(frozen=True)
+class CeilingSpec:
+    """A named ceiling formula with exact rational parameters (see corollarykit._bases)."""
+
+    kind: str
+    params: Mapping[str, Fraction]
+
+
+@dataclass(frozen=True)
 class Basis:
     id: str
     statement: str
-    domain: str
     source: str
     status: Status
     transcription_checked: bool
     hypothesis: Hypothesis | None = None
     note: str = ""
+    domain: Domain = field(default_factory=Domain)
+    domain_text: str = ""
+    requires: tuple[str, ...] = ()
+    ceiling: CeilingSpec | None = None
+    checked_against: str = ""
 
 
 @dataclass(frozen=True)
@@ -80,6 +113,14 @@ class Policy:
     trusted_proofs: frozenset[str] = field(default_factory=frozenset)
     allow_unchecked_transcriptions: bool = False
 
+    def _accepted_proofs(self, basis: Basis) -> list[Proof]:
+        assert basis.hypothesis is not None
+        return [
+            p
+            for p in basis.hypothesis.proofs
+            if p.effective_status >= self.min_status or p.id in self.trusted_proofs
+        ]
+
     def accepts(self, basis: Basis) -> bool:
         if not (basis.transcription_checked or self.allow_unchecked_transcriptions):
             return False
@@ -87,15 +128,33 @@ class Policy:
             return False
         if basis.hypothesis is None:
             return True
-        return any(
-            p.effective_status >= self.min_status or p.id in self.trusted_proofs
-            for p in basis.hypothesis.proofs
-        )
+        return bool(self._accepted_proofs(basis))
 
 
 DEFAULT = Policy("default")
 STRICT = Policy("strict")
 ACCEPT_RH_ALPOGE = Policy("accept_rh_alpoge", trusted_proofs=frozenset({"alpoge-claude-2026"}))
+BUILTIN_POLICIES = (DEFAULT, STRICT, ACCEPT_RH_ALPOGE)
+
+
+def effective_status(basis: Basis, policy: Policy) -> Status | None:
+    """How strong ``basis`` is under ``policy``, or None if the policy refuses it.
+
+    This is the weaker of the basis's own status and the strongest proof the policy
+    accepts for its hypothesis. A trusted proof still reports its own status: trusting
+    a claimed proof doesn't make it classical.
+    """
+    if not policy.accepts(basis):
+        return None
+    if basis.hypothesis is None:
+        return basis.status
+    best = max(p.effective_status for p in policy._accepted_proofs(basis))
+    return min(basis.status, best)
+
+
+# ---------------------------------------------------------------------------- loading
+
+_DOMAIN_KEYS = {"ge", "gt", "le", "lt"}
 
 
 def _flatten(table: dict[str, Any], prefix: str = "") -> dict[str, dict[str, Any]]:
@@ -104,15 +163,45 @@ def _flatten(table: dict[str, Any], prefix: str = "") -> dict[str, dict[str, Any
     for key, value in table.items():
         full = f"{prefix}{key}"
         if "statement" in value:
+            if full in out:
+                raise ValueError(f"duplicate basis id {full!r}")
             out[full] = value
         else:
-            out.update(_flatten(value, f"{full}."))
+            for sub_id, sub in _flatten(value, f"{full}.").items():
+                if sub_id in out:
+                    raise ValueError(f"duplicate basis id {sub_id!r}")
+                out[sub_id] = sub
     return out
 
 
-@cache
-def _load() -> tuple[dict[str, Hypothesis], dict[str, Basis]]:
-    raw = tomllib.loads(files(__package__).joinpath("bases.toml").read_text("utf-8"))
+def _int(value: Any, where: str) -> int:
+    # Integers beyond 64 bits are written as strings to stay within portable TOML.
+    if isinstance(value, bool) or not isinstance(value, int | str):
+        raise ValueError(f"{where}: expected an integer, got {value!r}")
+    return int(value)
+
+
+def _parse_domain(raw: Any, bid: str) -> Domain:
+    if raw is None:
+        return Domain()
+    if not isinstance(raw, dict):
+        raise ValueError(f"basis {bid!r}: domain must be a table, got {raw!r}")
+    unknown = raw.keys() - _DOMAIN_KEYS
+    if unknown:
+        raise ValueError(f"basis {bid!r}: unknown domain keys {sorted(unknown)}")
+    return Domain(**{k: _int(v, f"basis {bid!r} domain.{k}") for k, v in raw.items()})
+
+
+def _parse_ceiling(raw: Any, bid: str) -> CeilingSpec | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict) or "kind" not in raw:
+        raise ValueError(f"basis {bid!r}: ceiling must be a table with a 'kind'")
+    params = {k: Fraction(str(v)) for k, v in raw.items() if k != "kind"}
+    return CeilingSpec(kind=str(raw["kind"]), params=MappingProxyType(params))
+
+
+def _parse(raw: dict[str, Any]) -> tuple[dict[str, Hypothesis], dict[str, Basis]]:
     hyps = {
         hid: Hypothesis(
             id=hid,
@@ -130,17 +219,40 @@ def _load() -> tuple[dict[str, Hypothesis], dict[str, Basis]]:
         hyp = b.get("hypothesis")
         if hyp is not None and hyp not in hyps:
             raise ValueError(f"basis {bid!r} names unknown hypothesis {hyp!r}")
+        checked = b["transcription_checked"]
+        if not isinstance(checked, bool):
+            raise ValueError(f"basis {bid!r}: transcription_checked must be a boolean")
+        checked_against = str(b.get("checked_against", ""))
+        if checked and not checked_against.strip():
+            raise ValueError(
+                f"basis {bid!r}: transcription_checked = true requires checked_against "
+                "(page/equation and checker)"
+            )
         bases[bid] = Basis(
             id=bid,
             statement=b["statement"],
-            domain=b["domain"],
             source=b["source"],
             status=Status.parse(b["status"]),
-            transcription_checked=bool(b["transcription_checked"]),
+            transcription_checked=checked,
             hypothesis=hyps[hyp] if hyp is not None else None,
             note=b.get("note", ""),
+            domain=_parse_domain(b.get("domain"), bid),
+            domain_text=b.get("domain_text", ""),
+            requires=tuple(b.get("requires", ())),
+            ceiling=_parse_ceiling(b.get("ceiling"), bid),
+            checked_against=checked_against,
         )
     return hyps, bases
+
+
+def _load_from(text: str) -> tuple[dict[str, Hypothesis], dict[str, Basis]]:
+    """Parse registry TOML text. Test hook; the package itself uses _load()."""
+    return _parse(tomllib.loads(text))
+
+
+@cache
+def _load() -> tuple[dict[str, Hypothesis], dict[str, Basis]]:
+    return _load_from(files(__package__).joinpath("bases.toml").read_text("utf-8"))
 
 
 def get_basis(basis_id: str) -> Basis:
@@ -157,13 +269,17 @@ def get_hypothesis(hypothesis_id: str) -> Hypothesis:
 
 __all__ = [
     "ACCEPT_RH_ALPOGE",
+    "BUILTIN_POLICIES",
     "DEFAULT",
     "STRICT",
     "Basis",
+    "CeilingSpec",
+    "Domain",
     "Hypothesis",
     "Policy",
     "Proof",
     "Status",
+    "effective_status",
     "get_basis",
     "get_hypothesis",
     "list_bases",
