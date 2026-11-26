@@ -7,6 +7,8 @@ One file per algorithm. Each file covers:
 3. **New implementation**: what we will write and what it costs.
 4. **Testing** and **open questions**. The full per-algorithm test plans are in [testing/](testing/README.md).
 
+Shared helpers, result types and the build order are in [architecture.md](architecture.md).
+
 ## Status vocabulary
 
 Every 2026 result is tracked with one of these statuses. The library's assumption registry uses the same words.
