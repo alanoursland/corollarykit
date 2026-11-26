@@ -17,7 +17,7 @@ ORACLE_MODULES = {
     "oracle_highs": "highspy",
 }
 
-# In CI a missing oracle is a failure, never a silent skip.
+# Under scripts/check.sh a missing oracle is a failure, never a silent skip.
 REQUIRE_ORACLES = os.environ.get("COROLLARYKIT_REQUIRE_ORACLES") == "1"
 
 DEFAULT_MARKEXPR = "not slow and not bench"
@@ -46,7 +46,7 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
         return
     for marker, module in ORACLE_MODULES.items():
         if item.get_closest_marker(marker) and not _importable(module):
-            pytest.fail(f"oracle {module} missing in CI (COROLLARYKIT_REQUIRE_ORACLES=1)")
+            pytest.fail(f"oracle {module} missing (COROLLARYKIT_REQUIRE_ORACLES=1)")
 
 
 def pytest_sessionstart(session: pytest.Session) -> None:

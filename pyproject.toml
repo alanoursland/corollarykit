@@ -32,9 +32,9 @@ arb = ["python-flint>=0.9"]
 # Faster exact rationals and big integers.
 fast = ["gmpy2>=2.2"]
 test = ["pytest>=8", "hypothesis>=6", "mpmath>=1.3", "pytest-benchmark>=4", "sympy>=1.12"]
-# Independent implementations used as test oracles. CI installs these.
-# cypari2 joins in M3 (first test that uses PARI), together with a CI step that installs
-# PARI/GP: without it, pip falls back to a source build that fails on Python 3.11.
+# Independent implementations used as test oracles. scripts/check.sh installs these.
+# cypari2 joins in M3 (the first test that uses PARI), once PARI/GP is installed on the
+# machine running the checks: without it, pip falls back to a source build that fails.
 oracles = ["python-flint>=0.9"]
 dev = ["corollarykit[test,arb,oracles]", "ruff>=0.8", "mypy>=1.13", "build>=1.2", "twine>=6"]
 

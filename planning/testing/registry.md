@@ -8,7 +8,7 @@ Every guarantee in the library goes through `Policy.accepts`, so this is the mos
 - Every basis has a non-empty `statement`, `domain` and `source`, and a valid `status`.
 - **Transcription gate:** every basis with `transcription_checked = true` must also have a `checked_against` field giving the page or equation and the checker's name. Fail if it's missing.
 - Basis ids are unique after the dotted keys are flattened. Keep a regression test for the TOML nesting, where `bach1990.nonresidue` and `bach1990.miller` are siblings.
-- **Wheel contents:** the installed wheel contains `bases.toml`. This is covered implicitly by CI testing the built wheel, and checked explicitly with `importlib.resources`.
+- **Wheel contents:** the installed wheel contains `bases.toml`. This is covered implicitly by `scripts/check.sh` testing the built wheel, and checked explicitly with `importlib.resources`.
 
 ## 2. Policy semantics
 

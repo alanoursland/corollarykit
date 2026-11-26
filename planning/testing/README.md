@@ -22,7 +22,7 @@ There is one file per algorithm. Each follows the same layers. A layer is left o
 
 **Oracles are optional dependencies, and the tests say so.**
 - Markers: `oracle_sympy`, `oracle_pari` (cypari2), `oracle_flint`, `oracle_primecount`, `oracle_highs`.
-- A test with a missing oracle is skipped, never silently passed. CI installs them all.
+- A test with a missing oracle is skipped locally, and fails under `scripts/check.sh`, which installs them all.
 
 **Reference data is pinned.**
 - Each file in `tests/data/` has a provenance header: source, URL, retrieval date and sha256.
@@ -37,7 +37,7 @@ There is one file per algorithm. Each follows the same layers. A layer is left o
 - A **fake basis** with a deliberately false, too-small ceiling is injected through a test registry to show the `InconsistencyError` path fires.
 
 **Determinism.**
-- Hypothesis runs with a fixed database in CI and prints its seed.
+- Hypothesis runs derandomized under `scripts/check.sh` and prints a reproduction blob on failure.
 - Any failure becomes a permanent `@example`.
 
 **Mutation testing.**
@@ -47,7 +47,7 @@ There is one file per algorithm. Each follows the same layers. A layer is left o
 **Speed tiers.**
 - Default `pytest` finishes in under 60 s.
 - `-m slow` belongs to the **full run**, done by hand: `HYPOTHESIS_PROFILE=thorough pytest -m "slow or not slow"`. There is no scheduled automation.
-- `-m bench` writes `pytest-benchmark` JSON. **Benchmarks are not run in CI for now**; run them by hand when a milestone needs a measurement.
+- `-m bench` writes `pytest-benchmark` JSON. Benchmarks are run by hand when a milestone needs a measurement.
 
 ## Files
 

@@ -35,7 +35,7 @@ Plan: [../sat_count_subexp.md](../sat_count_subexp.md). Stage: research. One alg
 On small inputs the algorithm may take its brute-force fallback branches. So:
 - Expose each phase through internal APIs. For the Anthropic route: tensor-network construction, the signed-sum rewrite and contraction. For the OpenAI route: sparsification, bounded occurrences, spectral replacement and rational interpolation.
 - Test each phase on its own, against a direct computation: contraction value against brute-force summation; interpolation against known polynomial values.
-- **Coverage gate:** CI fails if the main (non-fallback) branch of each phase isn't executed by some test.
+- **Coverage gate:** `scripts/check.sh` fails if the main (non-fallback) branch of each phase isn't executed by some test.
 
 ## 8. Performance
 

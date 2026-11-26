@@ -52,7 +52,7 @@ The constants marked ⚠ must be copied from the cited source and checked agains
 
 1. If x < 2, return (0, 0), with `method="exact"`.
 2. **Exact branch:** if x ≤ exact_limit, return `lo = hi = π(x)` from the exact backend, with `scope="full"`.
-   - The default limit is the largest x the backend finishes in **≤ 1 s** on the reference CI machine.
+   - The default limit is the largest x the backend finishes in **≤ 1 s** on the maintainer's reference machine (recorded with the measurement).
    - Measured for the pure-Python odd-only `bytearray` sieve: π(10⁸) = 5 761 455 in 0.66 s, using about 50 MB.
    - So the pure-Python default is **10⁸**. With `primecount` installed the default is **10¹⁶**, to be benchmarked.
 3. **Analytic branch:** for each enabled basis whose domain contains x, compute a rigorous interval [Lᵦ, Uᵦ] for π(x).

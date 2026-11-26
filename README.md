@@ -29,7 +29,8 @@ Requires Python ≥ 3.11. Optional extras: `arb` (python-flint, for rigorous bal
 
 Tests run against the installed package (the `src/` tree is not on the path). Useful switches:
 
-- `pytest -m "slow or not slow"`: the full run, including slow tests (run by hand; there is no scheduled CI)
+- `scripts/check.sh [--full] [--python python3.11 ...]`: everything CI would run (this project uses no GitHub Actions): build, metadata check, install the wheel into a fresh venv, lint, type check, tests
+- `pytest -m "slow or not slow"`: the full run, including slow tests
 - `HYPOTHESIS_PROFILE=ci|thorough`: property-test settings
 - `COROLLARYKIT_REQUIRE_ORACLES=1`: fail, rather than skip, when an oracle library is missing
 - `python tests/data/regen.py`: regenerate the generated reference data

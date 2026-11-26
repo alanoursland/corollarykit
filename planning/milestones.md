@@ -1,6 +1,6 @@
 # Milestones
 
-Each milestone ends in a tagged release, or for M0 a merged branch, and has explicit **exit criteria**. A milestone is done only when every criterion holds in CI against the built wheel.
+Each milestone ends in a tagged release, or for M0 a merged branch, and has explicit **exit criteria**. A milestone is done only when every criterion holds under `scripts/check.sh`, which tests the built wheel. The project runs no GitHub Actions.
 
 The order follows [architecture.md](architecture.md). The test requirements come from [testing/](testing/README.md).
 
@@ -41,7 +41,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 **Exit criteria:**
 - `testing/registry.md` sections 1, 2 and 4 pass, including the exhaustive policy truth table.
 - `_intmath` is tested against naive implementations: every function on all inputs up to 10⁵, plus property tests.
-- The **verifier import lint** is in CI and fails on a deliberate violation.
+- The **verifier import lint** is in the test suite and fails on a deliberate violation.
 - `ceiling_upper` is tested against Arb (where installed) at 10⁴ points and is never below the true value.
 - The default `pytest` run takes under 60 s.
 
@@ -50,7 +50,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 **Scope:**
 - `check_lp_certificate` for standard form, per [specs/lp_certificate_checker.md](specs/lp_certificate_checker.md).
 - The second, naive checker in `tests/verify/`.
-- Release workflow: PyPI trusted publishing from a tag. No API tokens.
+- Release procedure, run locally (no GitHub Actions): `scripts/check.sh --full` on every supported Python, then `python -m build` and `twine upload` with a project-scoped PyPI API token kept in the maintainer's keyring, never in the repository. Tag the release commit.
 
 **Exit criteria:**
 - Every item in `testing/lp_certificate_checker.md`, except Netlib (which needs MPS and repair, so it comes later).
@@ -72,7 +72,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 
 **Exit criteria:**
 - Everything in `testing/prime_count_interval.md`, including the basis-switching boundaries and the fake-basis `InconsistencyError` path.
-- π(10⁸) in under 1 s in pure Python, and analytic x = 10¹⁰⁰⁰ in under 10 ms. Both are measured with a manual `pytest -m bench` run (benchmarks are not run in CI for now).
+- π(10⁸) in under 1 s in pure Python, and analytic x = 10¹⁰⁰⁰ in under 10 ms. Both are measured with a manual `pytest -m bench` run.
 - Under `DEFAULT`, results never cite `schoenfeld1976`. Under `ACCEPT_RH_ALPOGE` they do for x ≥ 10¹².
 
 ## M3: Primality core (0.3.0)
@@ -82,7 +82,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 - `_search.bach_scan`.
 - `is_prime_miller`, with separate policy switches for the fixed-base and GRH ranges.
 - `prove_prime`: trial division, then BPSW as a reject-only filter, then fixed bases, then Miller under GRH. `BasisNotAccepted` when nothing applies.
-- CI provisioning for PARI: install PARI/GP from apt (or a pinned wheel source) before `pip install`, then add `cypari2` back to the `oracles` extra. M0 removed it because pip falls back to a source build that fails on Python 3.11 without PARI.
+- PARI for the tests: install PARI/GP locally (for example from apt) before `pip install`, then add `cypari2` back to the `oracles` extra. M0 removed it because pip falls back to a source build that fails on Python 3.11 without PARI.
 
 **Needs from T1:** `sorenson_webster2017`, `bach1990.miller` and `bach1990.subgroup`.
 
