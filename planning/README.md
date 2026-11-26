@@ -5,7 +5,7 @@ One file per algorithm. Each file covers:
 1. **Old implementation**: what people do today and what it costs.
 2. **What changes it**: the exact mathematical result, which hypothesis it settles, and its status.
 3. **New implementation**: what we will write and what it costs.
-4. **Testing** and **open questions**.
+4. **Testing** and **open questions**. The full per-algorithm test plans are in [testing/](testing/README.md).
 
 ## Status vocabulary
 

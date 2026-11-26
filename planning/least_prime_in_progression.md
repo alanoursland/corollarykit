@@ -45,7 +45,7 @@ For NTT primes (q = 2^k, primes p ≈ 2^b with b a little above k), the search i
 
 ## Testing
 
-- Compare against OEIS A038026 (least prime ≡ 1 mod n) and A085420 (the worst-case a for each q) for q ≤ 10⁵.
+- Compare against a brute-force table we generate for q ≤ 2000, cross-checked with OEIS A034694 (least prime ≡ 1 mod n). See `testing/least_prime_in_progression.md`.
 - Edge cases: (a, q) = (0, 1) → 2; (1, 2) → 3; (2, 3) → 2; (3, 4) → 3; (5, 6) → 5. In each, the answer is a small prime that is also a sieving prime.
 - For every q ≤ 10³ and every a, check that the `full` certificate passes an independent checker that doesn't import the search code.
 - Cross-check NTT primes against published tables, such as the moduli used by Kyber and Dilithium (q = 3329, 8 380 417).
