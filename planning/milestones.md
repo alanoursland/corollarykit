@@ -1,24 +1,24 @@
 # Milestones
 
-Each milestone ends in a tagged release, or for M0 a merged branch, and has explicit **exit criteria**. A milestone is done only when every criterion holds under `scripts/check.sh`, which tests the built wheel. The project runs no GitHub Actions.
+Each milestone ends in a git tag (`m0`, `m1`, …) and has explicit **exit criteria**. **Nothing is published to PyPI until the very end** (see [Publishing](#publishing-at-the-end)). A milestone is done only when every criterion holds under `scripts/check.sh`, which tests the built wheel. The project runs no GitHub Actions.
 
 The order follows [architecture.md](architecture.md). The test requirements come from [testing/](testing/README.md).
 
-Version numbers stay below 1.0 until the public API is stable. A 0.x release may change the API, but every change goes into `CHANGELOG.md`.
+The version in `__init__.py` stays at `0.0.x.devN` until publishing. API changes between milestones are allowed, but every change goes into `CHANGELOG.md`.
 
 ## Overview
 
-| Milestone | Release | Theme | Depends on |
+| Milestone | Tag | Theme | Depends on |
 |---|---|---|---|
-| M0 | none | Foundations: result types, base helpers, verifier skeleton | scaffold (done) |
-| M1 | 0.1.0 | LP certificate checker; first PyPI release | M0 |
-| M2 | 0.2.0 | `prime_count_interval` | M0, T1 (partial) |
-| M3 | 0.3.0 | Primality core: `is_prime_miller`, `prove_prime` | M0, T1 (partial) |
-| M4 | 0.4.0 | Modular roots | M3 |
-| M5 | 0.5.0 | Prime search: `next_prime`, `least_prime_in_progression` | M3 |
-| M6 | 0.6.0 | `nth_prime_bounds`, `nth_prime` | M2 |
-| M7 | 0.7.0 | `factor_with_phi`, `primitive_root`, `irreducible_polynomial` | M3, M4 |
-| M8 | 0.8.0 | Hardening: downgrade drill, benchmarks, docs site | M1–M7 |
+| M0 | `m0` | Foundations: result types, base helpers, verifier skeleton | scaffold (done) |
+| M1 | `m1` | LP certificate checker | M0 |
+| M2 | `m2` | `prime_count_interval` | M0, T1 (partial) |
+| M3 | `m3` | Primality core: `is_prime_miller`, `prove_prime` | M0, T1 (partial) |
+| M4 | `m4` | Modular roots | M3 |
+| M5 | `m5` | Prime search: `next_prime`, `least_prime_in_progression` | M3 |
+| M6 | `m6` | `nth_prime_bounds`, `nth_prime` | M2 |
+| M7 | `m7` | `factor_with_phi`, `primitive_root`, `irreducible_polynomial` | M3, M4 |
+| M8 | `m8` | Hardening: downgrade drill, benchmarks, docs site | M1–M7 |
 | R1 | `experimental` | Strongly polynomial LP solver | M1, research reads |
 | R2 | `experimental` | Subexponential #SAT, unit-distance grid | M0, research reads |
 
@@ -28,7 +28,7 @@ There are also two **side tracks** that run alongside the code milestones (see b
 
 M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies are in.
 
-## M0: Foundations (no release)
+## M0: Foundations
 
 **Scope:**
 - `results.py`: `Result`, `Claim`, `Scope`, and `Result.weakest()`.
@@ -45,23 +45,21 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 - `ceiling_upper` is tested against Arb (where installed) at 10⁴ points and is never below the true value.
 - The default `pytest` run takes under 60 s.
 
-## M1: LP certificate checker (0.1.0, first PyPI release)
+## M1: LP certificate checker
 
 **Scope:**
 - `check_lp_certificate` for standard form, per [specs/lp_certificate_checker.md](specs/lp_certificate_checker.md).
 - The second, naive checker in `tests/verify/`.
-- Release procedure, run locally (no GitHub Actions): `scripts/check.sh --full` on every supported Python, then `python -m build` and `twine upload` with a project-scoped PyPI API token kept in the maintainer's keyring, never in the repository. Tag the release commit.
 
 **Exit criteria:**
 - Every item in `testing/lp_certificate_checker.md`, except Netlib (which needs MPS and repair, so it comes later).
 - The ray-without-a-feasible-point case is rejected.
 - No surviving mutants in `certificate.py` in a manual `mutmut` run.
-- The `corollarykit` name is confirmed on PyPI. TestPyPI upload, then PyPI upload.
 - The README shows a working checker example.
 
 **Why it comes first:** it needs no 2026 result and no registry transcription, and it is useful straight away.
 
-## M2: `prime_count_interval` (0.2.0)
+## M2: `prime_count_interval`
 
 **Scope:**
 - The spec [specs/prime_count_interval.md](specs/prime_count_interval.md), updated to the multi-claim result type (`bound_lo` and `bound_hi` claims).
@@ -75,7 +73,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 - π(10⁸) in under 1 s in pure Python, and analytic x = 10¹⁰⁰⁰ in under 10 ms. Both are measured with a manual `pytest -m bench` run.
 - Under `DEFAULT`, results never cite `schoenfeld1976`. Under `ACCEPT_RH_ALPOGE` they do for x ≥ 10¹².
 
-## M3: Primality core (0.3.0)
+## M3: Primality core
 
 **Scope:**
 - `_miller.miller_sequence`.
@@ -97,7 +95,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 
 **Risk:** this is the riskiest milestone, since five later functions depend on `prove_prime`. Plan for a review by someone other than the author before tagging.
 
-## M4: Modular roots (0.4.0)
+## M4: Modular roots
 
 **Scope:**
 - `least_nonresidue(p, ℓ)`.
@@ -114,7 +112,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 - Everything in `testing/modular_roots.md`, including the A000229 least-non-residue records below the ceiling.
 - A test shows that only prime candidates are scanned.
 
-## M5: Prime search (0.5.0)
+## M5: Prime search
 
 **Scope:**
 - `_search.bounded_search`.
@@ -130,7 +128,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
   - `full` minimality certificates checked by the independent verifier.
 - Results carry separate `primality`, `minimality` and `termination` claims, and the composition test passes.
 
-## M6: n-th prime (0.6.0)
+## M6: n-th prime
 
 **Scope:**
 - `nth_prime_bounds`, with integer tightening predicates where each side keeps its classical endpoint until a tighter one is proven.
@@ -141,7 +139,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 - Everything in `testing/nth_prime.md`, including n = 2 with bracket [2, 3] returning 3, and an undecidable Arb comparison that keeps the proven endpoint.
 - The measured sieve window under the RH bracket against the classical one is measured with a manual `pytest -m bench` run. That is the gain this milestone claims.
 
-## M7: Factoring and finite fields (0.7.0)
+## M7: Factoring and finite fields
 
 **Scope:**
 - `factor_with_phi`.
@@ -154,11 +152,11 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 - Everything in `testing/factor_with_phi.md`, `testing/primitive_root.md` and `testing/irreducible_polynomial.md`.
 - Every `irreducible_polynomial` output is confirmed irreducible by PARI and by the independent verifier's Rabin transcript.
 
-## M8: Hardening (0.8.0)
+## M8: Hardening
 
 **Scope:**
 - The **downgrade drill**, done for real: mark `alpoge-claude-2026` as `claimed` in a test registry, then run the entire suite under `ACCEPT_RH_ALPOGE`. Every answer must stay correct, and every reported basis must change accordingly.
-- Benchmark dashboard: an artifact per release.
+- Benchmark results recorded per milestone tag, from manual `pytest -m bench` runs.
 - Documentation site:
   - a page per function, with its bases table, the inputs covered, its claims and their scopes, and the measured performance (Astra's per-API table);
   - a "which hypothesis does this need" page, covering the Dirichlet, Dedekind and Hecke distinctions and the out-of-scope list.
@@ -219,7 +217,19 @@ These ship only under `corollarykit.experimental`, and only after their T2 reads
 
 1.0 requires:
 1. M1–M8 done.
-2. The API frozen for one minor release with no breaking changes.
+2. The API unchanged across one full milestone, with no breaking changes.
 3. At least one outside review of `prove_prime` and the registry policy logic.
 
-1.0 doesn't require any 2026 result to be confirmed. The default policy is correct either way. A confirmation changes only which bases `DEFAULT` accepts, through a registry update in a minor release.
+1.0 doesn't require any 2026 result to be confirmed. The default policy is correct either way. A confirmation changes only which bases `DEFAULT` accepts, through a registry update in a later minor release.
+
+## Publishing (at the end)
+
+The first PyPI upload is 1.0, once the requirements above are met. There are no intermediate PyPI releases. Until then, people who want to try it install from a git checkout.
+
+Procedure, run locally (the project uses no GitHub Actions):
+1. Confirm the name `corollarykit` is still free on PyPI. Reserve nothing early.
+2. `scripts/check.sh --full --python python3.11 --python python3.12 --python python3.13`.
+3. Set the version to `1.0.0` and finalize `CHANGELOG.md`.
+4. `python -m build`, then upload to TestPyPI and install from there into a fresh venv as a smoke test.
+5. `twine upload` to PyPI, using a project-scoped API token kept in the maintainer's keyring, never in the repository.
+6. Tag the commit `v1.0.0`.

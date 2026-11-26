@@ -2,7 +2,7 @@
 
 Algorithms and tools from recent mathematics, with every guarantee tied to the theorem it rests on.
 
-**Status: planning.** The public API is stubbed. Design documents are in [`planning/`](planning/README.md), and implementation specs are in [`planning/specs/`](planning/specs/).
+**Status: in development, not yet published on PyPI** (the first upload will be 1.0). Install from a git checkout. The public API is stubbed. Design documents are in [`planning/`](planning/README.md), and implementation specs are in [`planning/specs/`](planning/specs/).
 
 ## Idea
 

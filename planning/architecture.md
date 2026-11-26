@@ -199,7 +199,7 @@ Suggested sequence:
 1. **Foundations:** `results.py`, `_bases.py`, `_intmath.py`, and the `tests/verify/` skeleton. These have to come first.
 2. **`check_lp_certificate`** (Track C). It has a ready spec and no dependencies, so it can happen in parallel.
 3. **`prime_count_interval`** (Track A). It has a ready spec.
-4. **`_miller`, `_search`, `is_prime_miller`, `prove_prime`** (Track B core). This is the riskiest shared code, so it gets the heaviest testing (see `testing/is_prime_miller.md`). It moves up from fifth in the earlier release order.
+4. **`_miller`, `_search`, `is_prime_miller`, `prove_prime`** (Track B core). This is the riskiest shared code, so it gets the heaviest testing (see `testing/is_prime_miller.md`). It moves up from fifth in the earlier build order.
 5. `least_nonresidue` → `sqrt_mod_prime`, `nth_root_mod_prime`.
 6. `bounded_search` → `next_prime`, `least_prime_in_progression`.
 7. `nth_prime_bounds`, `nth_prime`.
