@@ -11,7 +11,7 @@ Plan: [../is_prime_miller.md](../is_prime_miller.md)
 ## 2. Oracle comparison
 
 - PARI `isprime` (`oracle_pari`, proven) and `gmpy2.is_prime` for 10⁴ random odd n at 82–400 bits, plus random primes and semiprimes at those sizes.
-- **Nightly:** the Feitsma–Galway list of base-2 strong pseudoprimes below 2⁶⁴, downloaded and hash-pinned. Every entry must be reported composite. That is about 3·10⁷ entries; the fast tier uses a pinned random sample of 10⁴.
+- **Full run (`@slow`):** the Feitsma–Galway list of base-2 strong pseudoprimes below 2⁶⁴, downloaded and hash-pinned. Every entry must be reported composite. That is about 3·10⁷ entries; the fast tier uses a pinned random sample of 10⁴.
 
 ## 3. Properties
 

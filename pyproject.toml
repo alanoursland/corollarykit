@@ -59,7 +59,7 @@ pythonpath = ["tests"]
 addopts = ["--import-mode=importlib", "-ra", "--strict-markers", "-m", "not slow and not bench"]
 xfail_strict = true
 markers = [
-    "slow: nightly only",
+    "slow: full run only, run by hand",
     "bench: benchmarks; writes pytest-benchmark JSON",
     "oracle_sympy: needs sympy",
     "oracle_pari: needs cypari2",

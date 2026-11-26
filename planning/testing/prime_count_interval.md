@@ -5,7 +5,7 @@ Spec: [../specs/prime_count_interval.md](../specs/prime_count_interval.md). The 
 ## 1. Reference values
 
 - π(10^k) for k = 1…29 (OEIS A006880), stored in `tests/data/pi_powers_of_ten.txt`. Check lo ≤ π ≤ hi under both policies.
-- Exact values at non-round points: π(2^k) for k ≤ 80 (published tables, or `primecount` in the nightly run).
+- Exact values at non-round points: π(2^k) for k ≤ 80 (published tables, or `primecount` in a full run).
 
 ## 2. Oracle comparison
 
@@ -47,4 +47,4 @@ For x ≤ 10⁸ the exact π is known by sieving, and the analytic interval must
 ## 8. Performance
 
 - Exact branch: π(10⁸) ≤ 1 s in pure Python. This test fixes the default `exact_limit`.
-- Analytic branch: x = 10¹⁰, 10¹⁰⁰ and 10¹⁰⁰⁰ under 10 ms each. Record the times; a regression of more than 2× fails the nightly run.
+- Analytic branch: x = 10¹⁰, 10¹⁰⁰ and 10¹⁰⁰⁰ under 10 ms each. Record the times; a regression of more than 2× is flagged in the manual benchmark run.

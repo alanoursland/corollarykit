@@ -25,7 +25,7 @@ TIME_BUDGET_SECONDS = float(os.environ.get("COROLLARYKIT_TIME_BUDGET", "60"))
 
 settings.register_profile("dev", max_examples=100)
 settings.register_profile("ci", max_examples=200, derandomize=True, print_blob=True)
-settings.register_profile("nightly", max_examples=5000, print_blob=True)
+settings.register_profile("thorough", max_examples=5000, print_blob=True)
 settings.load_profile(os.environ.get("HYPOTHESIS_PROFILE", "dev"))
 
 

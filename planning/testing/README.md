@@ -5,13 +5,13 @@ There is one file per algorithm. Each follows the same layers. A layer is left o
 | Layer | What it shows | Where it runs |
 |---|---|---|
 | **1. Reference values** | Answers match published or independently computed values | every push |
-| **2. Oracle comparison** | Answers match another implementation on many random inputs | every push (small); nightly (large) |
+| **2. Oracle comparison** | Answers match another implementation on many random inputs | every push (small); full run (large) |
 | **3. Properties** | Invariants hold on generated inputs (Hypothesis) | every push |
 | **4. Edge and adversarial cases** | Boundaries, degenerate inputs, the worst known inputs | every push |
 | **5. Bases and policy** | Each policy uses exactly the bases it should; domain boundaries switch bases correctly; ceilings hold | every push |
 | **6. Certificates** | An independent checker accepts every certificate we emit and rejects corrupted ones | every push |
 | **7. Failure paths** | `InconsistencyError`, `BasisNotAccepted` and input validation behave as specified | every push |
-| **8. Performance** | Cost stays within budget; complexity claims are measured, not assumed | nightly, recorded, never pass/fail except budget regressions |
+| **8. Performance** | Cost stays within budget; complexity claims are measured, not assumed | run by hand; recorded, never pass/fail except budget regressions |
 
 ## Shared rules
 
@@ -26,7 +26,7 @@ There is one file per algorithm. Each follows the same layers. A layer is left o
 
 **Reference data is pinned.**
 - Each file in `tests/data/` has a provenance header: source, URL, retrieval date and sha256.
-- Large data sets are downloaded in the nightly job and checked against a pinned hash, not committed.
+- Large data sets are downloaded by `@slow` tests in a full run and checked against a pinned hash, not committed.
 
 **Policy matrix.**
 - Every algorithm test runs under `DEFAULT` and under `ACCEPT_RH_ALPOGE`.
@@ -41,12 +41,12 @@ There is one file per algorithm. Each follows the same layers. A layer is left o
 - Any failure becomes a permanent `@example`.
 
 **Mutation testing.**
-- `mutmut` runs on the certificate checkers (LP checker and `tests/verify/`), nightly.
+- `mutmut` runs on the certificate checkers (LP checker and `tests/verify/`), by hand before each release.
 - A surviving mutant in a checker is treated as a bug.
 
 **Speed tiers.**
 - Default `pytest` finishes in under 60 s.
-- `-m slow` is nightly.
+- `-m slow` belongs to the **full run**, done by hand: `HYPOTHESIS_PROFILE=thorough pytest -m "slow or not slow"`. There is no scheduled automation.
 - `-m bench` writes `pytest-benchmark` JSON. **Benchmarks are not run in CI for now**; run them by hand when a milestone needs a measurement.
 
 ## Files

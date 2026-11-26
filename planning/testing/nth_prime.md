@@ -4,13 +4,13 @@ Plan: [../nth_prime_bounds.md](../nth_prime_bounds.md)
 
 ## 1. Reference values
 
-- p_(10^k) for k = 1…24 (OEIS A006988): check lo ≤ p ≤ hi. `nth_prime` is exact for k ≤ 10 in the fast tier and k ≤ 13 nightly with `primecount`.
+- p_(10^k) for k = 1…24 (OEIS A006988): check lo ≤ p ≤ hi. `nth_prime` is exact for k ≤ 10 in the fast tier and k ≤ 13 in a full run with `primecount`.
 - The first 10⁵ primes from a sieve, compared exactly.
 
 ## 2. Oracle comparison
 
 - `sympy.prime(n)` for random n ≤ 10⁶ (`oracle_sympy`).
-- `primecount.nth_prime` for random n ≤ 10¹² (nightly).
+- `primecount.nth_prime` for random n ≤ 10¹² (full run).
 
 ## 3. Properties
 

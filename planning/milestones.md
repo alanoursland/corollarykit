@@ -35,7 +35,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 - `_bases.py`: `select_bases`, `ceiling_upper`, and ceiling formulas declared alongside their basis ids.
 - `_intmath.py`: `small_primes`, `sieve_segment`, `progression_sieve`, `jacobi`, `iroot`, `perfect_power`, `trial_divide`, `prime_count_exact`.
 - `tests/verify/` skeleton, with its own naive arithmetic.
-- Test infrastructure: pytest markers (`slow`, `bench`, `oracle_*`), Hypothesis settings, `tests/data/` with provenance headers, and a nightly CI workflow.
+- Test infrastructure: pytest markers (`slow`, `bench`, `oracle_*`), Hypothesis settings, and `tests/data/` with provenance headers. No scheduled workflow: slow tests are run by hand.
 - Registry schema: add the `checked_against` field and the formula field.
 
 **Exit criteria:**
@@ -55,7 +55,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 **Exit criteria:**
 - Every item in `testing/lp_certificate_checker.md`, except Netlib (which needs MPS and repair, so it comes later).
 - The ray-without-a-feasible-point case is rejected.
-- No surviving mutants in `certificate.py` in the nightly `mutmut` run.
+- No surviving mutants in `certificate.py` in a manual `mutmut` run.
 - The `corollarykit` name is confirmed on PyPI. TestPyPI upload, then PyPI upload.
 - The README shows a working checker example.
 
@@ -89,7 +89,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 **Exit criteria:**
 - Everything in `testing/is_prime_miller.md`:
   - ψ₁ to ψ₁₃ reported composite, with witnesses;
-  - a sample of the Feitsma–Galway list in the fast tier, and the full list nightly;
+  - a sample of the Feitsma–Galway list in the fast tier, and the full list in a manual full run;
   - perfect powers caught before the Miller step;
   - agreement with PARI `isprime` on 10⁴ random 82–400-bit inputs.
 - The stub-BPSW test: a BPSW that wrongly accepts a composite never produces a `Prime` result.

@@ -7,7 +7,7 @@ The checker is a trusted component, so it gets the heaviest testing.
 ## 1. Reference values
 
 - **Hand-built cases:** one valid certificate of each type (optimal, infeasible, unbounded), with the expected objective.
-- **Netlib, with exact optima** (Koch 2004, "The final NETLIB-LP results"): once an MPS reader and rational repair exist, every instance's certificate built from exact SoPlex output must validate, and the objective must match Koch's value exactly. Until then, nightly only.
+- **Netlib, with exact optima** (Koch 2004, "The final NETLIB-LP results"): once an MPS reader and rational repair exist, every instance's certificate built from exact SoPlex output must validate, and the objective must match Koch's value exactly. Until then, full runs only.
 
 ## 2. Oracle comparison
 
@@ -38,7 +38,7 @@ Not applicable: the checker uses no basis. A test asserts that it never consults
 
 The checker *is* the verifier. To check the checker:
 - **Second implementation:** a deliberately naive second checker in `tests/verify/` (dense matrices, no early exits). The two must agree on every generated case.
-- **Mutation testing:** `mutmut` nightly. No surviving mutants in `certificate.py`.
+- **Mutation testing:** `mutmut`, run by hand before each release. No surviving mutants in `certificate.py`.
 
 ## 7. Failure paths
 
