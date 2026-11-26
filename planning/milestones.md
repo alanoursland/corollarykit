@@ -72,7 +72,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 
 **Exit criteria:**
 - Everything in `testing/prime_count_interval.md`, including the basis-switching boundaries and the fake-basis `InconsistencyError` path.
-- π(10⁸) in under 1 s in pure Python, and analytic x = 10¹⁰⁰⁰ in under 10 ms. Both are recorded in the benchmark artifact.
+- π(10⁸) in under 1 s in pure Python, and analytic x = 10¹⁰⁰⁰ in under 10 ms. Both are measured with a manual `pytest -m bench` run (benchmarks are not run in CI for now).
 - Under `DEFAULT`, results never cite `schoenfeld1976`. Under `ACCEPT_RH_ALPOGE` they do for x ≥ 10¹².
 
 ## M3: Primality core (0.3.0)
@@ -82,6 +82,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 - `_search.bach_scan`.
 - `is_prime_miller`, with separate policy switches for the fixed-base and GRH ranges.
 - `prove_prime`: trial division, then BPSW as a reject-only filter, then fixed bases, then Miller under GRH. `BasisNotAccepted` when nothing applies.
+- CI provisioning for PARI: install PARI/GP from apt (or a pinned wheel source) before `pip install`, then add `cypari2` back to the `oracles` extra. M0 removed it because pip falls back to a source build that fails on Python 3.11 without PARI.
 
 **Needs from T1:** `sorenson_webster2017`, `bach1990.miller` and `bach1990.subgroup`.
 
@@ -138,7 +139,7 @@ M1 and M2 can proceed in parallel, and so can M3 and M6 once their dependencies 
 
 **Exit criteria:**
 - Everything in `testing/nth_prime.md`, including n = 2 with bracket [2, 3] returning 3, and an undecidable Arb comparison that keeps the proven endpoint.
-- The measured sieve window under the RH bracket against the classical one is reported in the benchmark artifact. That is the gain this milestone claims.
+- The measured sieve window under the RH bracket against the classical one is measured with a manual `pytest -m bench` run. That is the gain this milestone claims.
 
 ## M7: Factoring and finite fields (0.7.0)
 

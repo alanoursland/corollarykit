@@ -85,13 +85,26 @@ def _qlogq_sq(p: Mapping[str, Fraction], *, q: int) -> Fraction:
     return p["c"] * (q * ln_upper(q)) ** 2
 
 
-def _phiqlogq_sq(p: Mapping[str, Fraction], *, q: int, phi: int | None = None) -> Fraction:
+def _phiqlogq_sq(p: Mapping[str, Fraction], *, q: int, phi_upper: int | None = None) -> Fraction:
+    """c (phi(q) ln q)^2, using an upper bound on phi(q).
+
+    ``phi_upper`` must be the exact totient phi(q) or a certified upper bound on it:
+    a smaller value gives a ceiling that is too small. When it is omitted, q - 1 is
+    used, which is always valid for q >= 2. As a guard against gross mistakes (not a
+    proof), values violating the elementary bound phi(q) >= sqrt(q/2) are rejected.
+    """
     if q < 2:
         raise ValueError("phiqlogq_sq requires q >= 2")
-    # phi(q) <= q - 1 for q >= 2, so q - 1 gives a valid upper bound when phi is unknown.
-    if phi is not None and not 1 <= phi <= q - 1:
-        raise ValueError("phi must satisfy 1 <= phi <= q - 1")
-    return p["c"] * ((phi if phi is not None else q - 1) * ln_upper(q)) ** 2
+    if phi_upper is None:
+        phi_upper = q - 1
+    elif not 1 <= phi_upper <= q - 1:
+        raise ValueError("phi_upper must satisfy 1 <= phi_upper <= q - 1")
+    elif 2 * phi_upper * phi_upper < q:
+        raise ValueError(
+            "phi_upper is below sqrt(q/2), a lower bound on phi(q); pass the exact totient "
+            "or a certified upper bound"
+        )
+    return p["c"] * (phi_upper * ln_upper(q)) ** 2
 
 
 CEILING_KINDS: dict[str, tuple[Callable[..., Fraction], frozenset[str]]] = {
@@ -114,8 +127,10 @@ def validate_registry_ceilings(bases: Iterable[Basis] | None = None) -> None:
             raise ValueError(
                 f"basis {b.id!r}: ceiling {b.ceiling.kind!r} needs parameters {sorted(needed)}"
             )
-        if "k" in needed and b.ceiling.params["k"].denominator != 1:
-            raise ValueError(f"basis {b.id!r}: exponent k must be an integer")
+        if "k" in needed and (b.ceiling.params["k"].denominator != 1 or b.ceiling.params["k"] < 1):
+            # k >= 1 keeps the formula increasing in ln n, so an upper bound on ln n
+            # gives an upper bound on the ceiling. k <= 0 would reverse that.
+            raise ValueError(f"basis {b.id!r}: exponent k must be an integer >= 1")
         if b.ceiling.params["c"] <= 0:
             raise ValueError(f"basis {b.id!r}: constant c must be positive")
 
@@ -125,6 +140,7 @@ def ceiling_upper(basis: Basis | str, **inputs: int | None) -> int:
     b = get_basis(basis) if isinstance(basis, str) else basis
     if b.ceiling is None:
         raise ValueError(f"basis {b.id!r} has no ceiling")
+    validate_registry_ceilings([b])  # also covers Basis objects built outside the registry
     fn, _ = CEILING_KINDS[b.ceiling.kind]
     value = fn(b.ceiling.params, **inputs)
     return -((-value.numerator) // value.denominator)

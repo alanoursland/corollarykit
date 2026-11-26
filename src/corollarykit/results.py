@@ -28,14 +28,33 @@ class Scope(Enum):
 
 
 def is_plain(obj: object) -> bool:
-    """True for int, str, bool, None, Fraction, and tuples, lists, str-keyed dicts of those."""
+    """True for int, str, bool, None, Fraction, and tuples, lists, str-keyed dicts of those
+    (including the read-only mappings that frozen certificates use)."""
     if obj is None or isinstance(obj, bool | int | str | Fraction):
         return True
     if isinstance(obj, tuple | list):
         return all(is_plain(x) for x in obj)
-    if isinstance(obj, dict):
+    if isinstance(obj, dict | MappingProxyType):
         return all(isinstance(k, str) and is_plain(v) for k, v in obj.items())
     return False
+
+
+def freeze(obj: Any) -> Any:
+    """An immutable deep copy of plain data: lists become tuples, dicts read-only mappings."""
+    if isinstance(obj, tuple | list):
+        return tuple(freeze(x) for x in obj)
+    if isinstance(obj, dict | MappingProxyType):
+        return MappingProxyType({k: freeze(v) for k, v in obj.items()})
+    return obj  # int, str, bool, None, Fraction: all immutable
+
+
+def thaw(obj: Any) -> Any:
+    """A fresh, mutable deep copy of frozen plain data: tuples become lists, mappings dicts."""
+    if isinstance(obj, tuple | list):
+        return [thaw(x) for x in obj]
+    if isinstance(obj, dict | MappingProxyType):
+        return {k: thaw(v) for k, v in obj.items()}
+    return obj
 
 
 def plainify(value: object) -> Any:
@@ -63,6 +82,9 @@ class Claim:
             raise ValueError(f"claim {self.name!r}: a basis id is required exactly for BASIS scope")
         if not is_plain(self.certificate):
             raise ValueError(f"claim {self.name!r}: certificate must be plain data")
+        # Snapshot: later changes to the caller's object can't reach the claim, and the
+        # claim can't be changed through anything it hands out.
+        object.__setattr__(self, "certificate", freeze(self.certificate))
 
 
 @dataclass(frozen=True)
@@ -103,7 +125,11 @@ class Result(Generic[T]):
             "method": self.method,
             "policy": self.policy,
             "claims": {
-                name: {"scope": c.scope.value, "basis": c.basis, "certificate": c.certificate}
+                name: {
+                    "scope": c.scope.value,
+                    "basis": c.basis,
+                    "certificate": thaw(c.certificate),
+                }
                 for name, c in self.claims.items()
             },
         }
@@ -115,4 +141,4 @@ def compose(own_name: str, helper: Result[Any], helper_claim: str) -> Claim:
     return Claim(own_name, c.scope, c.basis, c.certificate)
 
 
-__all__ = ["Claim", "Result", "Scope", "compose", "is_plain", "plainify"]
+__all__ = ["Claim", "Result", "Scope", "compose", "freeze", "is_plain", "plainify", "thaw"]

@@ -112,7 +112,7 @@ def _true_value(basis, **inputs):
         return TRUE_FORMULAS[kind](p["c"], mpmath.mpf(inputs["x"]))
     if kind == "qlogq_sq":
         return TRUE_FORMULAS[kind](p["c"], mpmath.mpf(inputs["q"]))
-    phi = inputs.get("phi") or inputs["q"] - 1
+    phi = inputs.get("phi_upper") or inputs["q"] - 1
     return TRUE_FORMULAS[kind](p["c"], mpmath.mpf(inputs["q"]), mpmath.mpf(phi))
 
 
@@ -136,10 +136,28 @@ def test_ceiling_upper_sound_and_tight(basis):
 def test_phi_bound_uses_supplied_phi():
     b = get_basis("lls2015")
     q = 2**61 - 1  # prime, so phi = q - 1
-    assert ceiling_upper(b, q=q) == ceiling_upper(b, q=q, phi=q - 1)
-    assert ceiling_upper(b, q=30, phi=8) < ceiling_upper(b, q=30)
+    assert ceiling_upper(b, q=q) == ceiling_upper(b, q=q, phi_upper=q - 1)
+    assert ceiling_upper(b, q=30, phi_upper=8) < ceiling_upper(b, q=30)
     with pytest.raises(ValueError):
-        ceiling_upper(b, q=30, phi=30)
+        ceiling_upper(b, q=30, phi_upper=30)
+
+
+def test_phi_upper_rejects_values_below_elementary_lower_bound():
+    # phi(101) = 100; phi_upper=1 would give a ceiling of 22 against the true 212994.
+    b = get_basis("lls2015")
+    with pytest.raises(ValueError, match="sqrt"):
+        ceiling_upper(b, q=101, phi_upper=1)
+    assert ceiling_upper(b, q=101, phi_upper=100) >= 212994
+
+
+def test_negative_or_zero_exponent_rejected():
+    b = get_basis("bach1990.miller")
+    for k in (Fraction(-1), Fraction(0)):
+        bad = dataclasses.replace(b, ceiling=CeilingSpec("log_pow", {"c": Fraction(2), "k": k}))
+        with pytest.raises(ValueError, match="k must be an integer >= 1"):
+            validate_registry_ceilings([bad])
+        with pytest.raises(ValueError, match="k must be an integer >= 1"):
+            ceiling_upper(bad, n=10**6)
 
 
 def test_ceiling_upper_without_ceiling():
@@ -183,3 +201,29 @@ def test_select_bases_preserves_caller_order():
 def test_select_bases_unknown_id_is_a_bug():
     with pytest.raises(KeyError):
         select_bases(LENIENT, ["no-such-basis"], 1)
+
+
+@pytest.mark.oracle_flint
+@pytest.mark.parametrize("basis", CEILING_BASES, ids=lambda b: b.id)
+def test_ceiling_upper_against_arb(basis):
+    """Every registered ceiling is at or above Arb's enclosure of the true formula."""
+    import flint
+
+    flint.ctx.prec = 600
+    name = INPUT_NAME[basis.ceiling.kind]
+    p = {k: flint.arb(v.numerator) / v.denominator for k, v in basis.ceiling.params.items()}
+    kind = basis.ceiling.kind
+    for n in sample_n():
+        if n < 2:
+            continue
+        x = flint.arb(n)
+        if kind == "log_pow":
+            true = p["c"] * x.log() ** int(basis.ceiling.params["k"])
+        elif kind == "sqrt_log":
+            true = p["c"] * x.sqrt() * x.log()
+        elif kind == "qlogq_sq":
+            true = p["c"] * (x * x.log()) ** 2
+        else:
+            true = p["c"] * ((x - 1) * x.log()) ** 2
+        got = ceiling_upper(basis, **{name: n})
+        assert flint.arb(got) >= true.mid() + true.rad(), (basis.id, n)

@@ -129,6 +129,26 @@ def test_progression_sieve_matches_naive():
                             assert naive_is_prime(v)
 
 
+def test_negative_bounds_are_rejected():
+    # A negative bound would make the "certainly prime below (bound+1)^2" rule accept 4.
+    with pytest.raises(ValueError, match="bound >= 0"):
+        im.progression_sieve(0, 1, 4, 5, -4)
+    with pytest.raises(ValueError, match="bound >= 0"):
+        im.trial_divide(4, -4)
+
+
+@pytest.mark.parametrize("bound", [0, 1])
+def test_tiny_bounds_keep_the_certainty_rule_sound(bound):
+    flags, certain = im.progression_sieve(0, 1, 0, 20, bound)
+    for j, f in enumerate(flags):
+        if f and j < certain:
+            assert naive_is_prime(j)
+    for n in range(1, 50):
+        _, cof = im.trial_divide(n, bound)
+        if 1 < cof < (bound + 1) ** 2:
+            assert naive_is_prime(cof)
+
+
 def test_progression_sieve_validates():
     for args in [(2, 4, 0, 5, 10), (5, 3, 0, 5, 10), (1, 0, 0, 5, 10), (1, 3, 5, 2, 10)]:
         with pytest.raises(ValueError):

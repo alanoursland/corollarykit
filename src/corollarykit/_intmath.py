@@ -116,6 +116,8 @@ def progression_sieve(a: int, q: int, j0: int, j1: int, bound: int) -> tuple[byt
         raise ValueError("progression_sieve requires q >= 1, 0 <= a < q, gcd(a, q) = 1")
     if j1 < j0:
         raise ValueError("progression_sieve requires j1 >= j0")
+    if bound < 0:
+        raise ValueError("progression_sieve requires bound >= 0")
     flags = bytearray([1]) * (j1 - j0)
     # Values below 2 occur only for the first one or two j.
     j = j0
@@ -190,6 +192,8 @@ def trial_divide(n: int, bound: int) -> tuple[dict[int, int], int]:
     n, bound = _int(n, "n"), _int(bound, "bound")
     if n < 1:
         raise ValueError("trial_divide requires n >= 1")
+    if bound < 0:
+        raise ValueError("trial_divide requires bound >= 0")
     factors: dict[int, int] = {}
     for p in small_primes(bound):
         if p * p > n:

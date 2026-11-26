@@ -47,7 +47,7 @@ There is one file per algorithm. Each follows the same layers. A layer is left o
 **Speed tiers.**
 - Default `pytest` finishes in under 60 s.
 - `-m slow` is nightly.
-- `-m bench` writes `pytest-benchmark` JSON, kept as a CI artifact.
+- `-m bench` writes `pytest-benchmark` JSON. **Benchmarks are not run in CI for now**; run them by hand when a milestone needs a measurement.
 
 ## Files
 

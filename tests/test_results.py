@@ -7,7 +7,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from corollarykit.registry import Policy
-from corollarykit.results import Claim, Result, Scope, compose, is_plain, plainify
+from corollarykit.results import Claim, Result, Scope, compose, is_plain, plainify, thaw
 
 LENIENT = Policy("t", allow_unchecked_transcriptions=True)
 TRUSTING = Policy(
@@ -118,9 +118,36 @@ def test_compose_copies_without_merging():
         "default",
     )
     c = compose("primality_of_p", helper, "primality")
-    assert (c.name, c.scope, c.basis, c.certificate) == (
+    assert (c.name, c.scope, c.basis, thaw(c.certificate)) == (
         "primality_of_p",
         Scope.BASIS,
         "sorenson_webster2017",
         {"bases": [2, 3]},
     )
+
+
+def test_certificate_is_snapshotted_at_construction():
+    source = {"witnesses": [2, 3], "meta": {"k": 1}}
+    claim = Claim("c", Scope.FULL, None, source)
+    source["witnesses"].append(1.5)  # a float could never pass validation
+    source["meta"]["k"] = 99
+    assert thaw(claim.certificate) == {"witnesses": [2, 3], "meta": {"k": 1}}
+
+
+def test_to_plain_returns_detached_trees():
+    claim = Claim("c", Scope.FULL, None, {"witnesses": [2, 3], "meta": {"k": 1}})
+    r = Result(0, "m", {"c": claim}, "default")
+    plain = r.to_plain()
+    plain["claims"]["c"]["certificate"]["witnesses"].append(1.5)
+    plain["claims"]["c"]["certificate"]["meta"]["k"] = 99
+    again = r.to_plain()
+    assert again["claims"]["c"]["certificate"] == {"witnesses": [2, 3], "meta": {"k": 1}}
+    assert is_plain(again)
+
+
+def test_frozen_certificate_cannot_be_mutated_in_place():
+    claim = Claim("c", Scope.FULL, None, {"witnesses": [2, 3]})
+    with pytest.raises(TypeError):
+        claim.certificate["witnesses"] = []
+    with pytest.raises(AttributeError):
+        claim.certificate["witnesses"].append(5)

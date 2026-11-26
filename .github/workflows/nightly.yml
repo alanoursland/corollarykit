@@ -24,11 +24,4 @@ jobs:
       - run: pip install "$(ls dist/*.whl)[test,arb,oracles]"
       - name: All tests, including slow
         run: pytest -m "slow or not slow"
-      - name: Benchmarks
-        run: pytest -m bench --benchmark-json=bench.json
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: bench
-          path: bench.json
-          if-no-files-found: ignore
+      # Benchmarks are not run in CI for now. Run them by hand with: pytest -m bench
