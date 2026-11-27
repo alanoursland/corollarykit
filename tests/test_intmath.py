@@ -97,6 +97,14 @@ def test_iter_segments_covers_interval():
     assert got == [p for p in PRIMES_TO_3000 if 10 < p <= 1000]
 
 
+@pytest.mark.parametrize(("lo", "hi"), [(-10, -3), (-(10**6), -(10**6) + 50), (-5, 0), (-5, 3)])
+def test_sieve_segment_negative_windows(lo, hi):
+    flags = im.sieve_segment(lo, hi)
+    assert [lo + 1 + i for i, f in enumerate(flags) if f] == [
+        n for n in range(lo + 1, hi + 1) if naive_is_prime(n)
+    ]
+
+
 def test_sieve_segment_rejects_reversed():
     with pytest.raises(ValueError):
         im.sieve_segment(10, 5)

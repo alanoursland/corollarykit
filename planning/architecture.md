@@ -206,6 +206,26 @@ Suggested sequence:
 8. `factor_with_phi`, `primitive_root` (+ `_factor`), `irreducible_polynomial` (+ `_polyfp`).
 9. **Research:** `solve_lp_exact`, then the `experimental/` modules.
 
+## Rule for the package `__init__`
+
+`import corollarykit.registry` runs `corollarykit/__init__.py`, and `tests/verify/` imports the registry. So **`__init__` must import only `errors` and `registry`.** `tests/test_verify_independence.py` checks this in a subprocess through `sys.modules`.
+
+To expose algorithms at the top level (`corollarykit.check_lp_certificate`), use lazy exports with a module-level `__getattr__` (PEP 562). Never import them eagerly:
+
+```python
+_LAZY = {"check_lp_certificate": "corollarykit.lp.certificate"}
+
+def __getattr__(name):
+    if name in _LAZY:
+        return getattr(importlib.import_module(_LAZY[name]), name)
+    raise AttributeError(f"module 'corollarykit' has no attribute {name!r}")
+
+def __dir__():
+    return sorted([*globals(), *_LAZY])
+```
+
+Add a test that each lazy name resolves, and that importing the registry still loads only the three modules.
+
 ## Rule for the test verifier
 
 `tests/verify/` must **not** reuse these helpers. Shared helpers are exactly where a bug would show up in the library and its checker at once. The verifier gets its own deliberately naive implementations:
