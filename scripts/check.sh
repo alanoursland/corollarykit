@@ -39,7 +39,7 @@ for PY in "${PYTHONS[@]}"; do
   rm -rf "$WORK/dist"
   "$VENV/bin/python" -m build -q -o "$WORK/dist" >/dev/null
   "$VENV/bin/twine" check --strict "$WORK"/dist/*
-  "$VENV/bin/pip" install -q "$(ls "$WORK"/dist/*.whl)[test,arb,oracles]"
+  "$VENV/bin/pip" install -q "$(ls "$WORK"/dist/*.whl)[test,arb,oracles,fast]"
 
   "$VENV/bin/ruff" check "$ROOT"
   "$VENV/bin/ruff" format --check "$ROOT"

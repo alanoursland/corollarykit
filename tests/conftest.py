@@ -14,7 +14,7 @@ ORACLE_MODULES = {
     "oracle_pari": "cypari2",
     "oracle_flint": "flint",
     "oracle_primecount": "primecount",
-    "oracle_highs": "highspy",
+    "oracle_highs": "scipy",
 }
 
 # Under scripts/check.sh a missing oracle is a failure, never a silent skip.

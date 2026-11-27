@@ -27,7 +27,6 @@ STUBS = [
     ("corollarykit.modular", "sqrt_mod_prime", (2, 7)),
     ("corollarykit.modular", "nth_root_mod_prime", (2, 3, 7)),
     ("corollarykit.modular", "primitive_root", (7,)),
-    ("corollarykit.lp", "check_lp_certificate", (None, None)),
     ("corollarykit.lp.solver", "solve_lp_exact", (None, None, None)),
     ("corollarykit.experimental.sat_count", "count_sat_subexp", (None,)),
     ("corollarykit.experimental.unit_distance", "erdos_grid", (4,)),
@@ -39,3 +38,28 @@ def test_planned_api_is_stubbed(module, name, args):
     fn = getattr(importlib.import_module(module), name)
     with pytest.raises(NotImplementedError):
         fn(*args)
+
+
+LAZY_NAMES = [
+    "CheckResult",
+    "Failure",
+    "Infeasible",
+    "Optimal",
+    "SparseMatrix",
+    "StandardFormLP",
+    "Unbounded",
+    "check_lp_certificate",
+]
+
+
+@pytest.mark.parametrize("name", LAZY_NAMES)
+def test_lazy_top_level_exports(name):
+    import corollarykit.lp.certificate as cert
+
+    assert getattr(corollarykit, name) is getattr(cert, name)
+    assert name in dir(corollarykit)
+
+
+def test_unknown_attribute_raises():
+    with pytest.raises(AttributeError):
+        corollarykit.no_such_thing  # noqa: B018

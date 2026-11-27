@@ -11,3 +11,4 @@ venv/
 .hypothesis/
 .coverage
 htmlcov/
+mutants/

@@ -18,6 +18,24 @@ ck.get_basis("schoenfeld1976").hypothesis.proofs
 
 If a result turns out to be wrong, its registry entry changes and the default answers stay correct.
 
+## Example
+
+The LP certificate checker verifies a solver's claim with exact rational arithmetic. Here a "proof" of unboundedness supplies a valid ray but no feasible point, so it proves nothing:
+
+```python
+from corollarykit import StandardFormLP, Unbounded, Infeasible, check_lp_certificate
+
+# minimize -x2  subject to  x1 = -1,  x >= 0   (infeasible: x1 can't be -1)
+lp = StandardFormLP.build([[1, 0]], [-1], [0, -1])
+
+claim = check_lp_certificate(lp, Unbounded(x=[-1, 0], d=[0, 1]))
+assert not claim.valid
+print(claim.failures[0])   # primal_nonneg[0] (x): -1 >= 0 is false
+
+proof = check_lp_certificate(lp, Infeasible(y=[-1]))
+assert proof.valid          # y = (-1): A^T y = (-1, 0) <= 0 and b^T y = 1 > 0
+```
+
 ## Install (development)
 
 ```sh
