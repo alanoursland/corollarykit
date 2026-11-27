@@ -48,10 +48,29 @@ def test_big_domain_bound_parses_from_string():
     assert get_basis("sorenson_webster2017").domain.lt == 3317044064679887385961981
 
 
-def test_unchecked_lean_proof_counts_as_claimed():
+def test_rh_statement_match_is_checked_and_cited():
     (proof,) = get_hypothesis("RH").proofs
     assert proof.status is Status.LEAN_COMPILED
-    assert proof.effective_status is Status.CLAIMED
+    assert proof.statement_match == "checked"
+    assert "Mathlib" in proof.statement_match_source
+    assert proof.effective_status is Status.LEAN_COMPILED
+
+
+def test_dirichlet_grh_statement_match_is_only_partial():
+    (proof,) = get_hypothesis("GRH-dirichlet").proofs
+    assert proof.statement_match == "partial"
+    assert proof.statement_match_source
+    assert proof.effective_status is Status.CLAIMED  # partial does not lift a Lean proof
+
+
+@pytest.mark.parametrize("match", ["unchecked", "partial"])
+def test_lean_proof_without_checked_match_counts_as_claimed(match):
+    assert Proof("p", "s", Status.LEAN_COMPILED, match).effective_status is Status.CLAIMED
+
+
+def test_invalid_statement_match_rejected():
+    with pytest.raises(ValueError, match="statement_match"):
+        Proof("p", "s", Status.LEAN_COMPILED, "checked:someone")
 
 
 def test_quasi_grh_records_weaker_statement():
@@ -99,6 +118,34 @@ def test_loader_rejects_non_boolean_transcription_flag():
         _load(checked='"yes"')
 
 
+PROOF_TOML = """
+[hypotheses.H]
+statement = "h"
+[[hypotheses.H.proofs]]
+id = "p"
+source = "src"
+status = "lean-compiled"
+statement_match = "{match}"
+{extra}
+[bases.b]
+statement = "s"
+domain_text = "x"
+source = "src"
+status = "classical"
+transcription_checked = false
+"""
+
+
+@pytest.mark.parametrize("match", ["partial", "checked"])
+def test_matched_statement_requires_source(match):
+    with pytest.raises(ValueError, match="statement_match_source"):
+        _load_from(PROOF_TOML.format(match=match, extra=""))
+    hyps, _ = _load_from(
+        PROOF_TOML.format(match=match, extra='statement_match_source = "compared by X"')
+    )
+    assert hyps["H"].proofs[0].statement_match_source == "compared by X"
+
+
 def test_loader_rejects_unknown_hypothesis():
     with pytest.raises(ValueError, match="unknown hypothesis"):
         _load(extra='hypothesis = "nope"')
@@ -135,7 +182,7 @@ def reference_accepts(policy: Policy, basis: Basis) -> bool:
     if basis.hypothesis is None:
         return True
     for proof in basis.hypothesis.proofs:
-        if proof.status == Status.LEAN_COMPILED and proof.statement_match == "unchecked":
+        if proof.status == Status.LEAN_COMPILED and proof.statement_match != "checked":
             eff = Status.CLAIMED
         else:
             eff = proof.status
@@ -147,7 +194,8 @@ def reference_accepts(policy: Policy, basis: Basis) -> bool:
 PROOF_KINDS = [
     (Status.CLAIMED, "unchecked"),
     (Status.LEAN_COMPILED, "unchecked"),
-    (Status.LEAN_COMPILED, "checked:x"),
+    (Status.LEAN_COMPILED, "partial"),
+    (Status.LEAN_COMPILED, "checked"),
     (Status.PEER_VERIFIED, "unchecked"),
     (Status.CLASSICAL, "unchecked"),
 ]
@@ -226,7 +274,8 @@ def test_effective_status():
         "t2", trusted_proofs=ACCEPT_RH_ALPOGE.trusted_proofs, allow_unchecked_transcriptions=True
     )
     # Trusting a proof does not upgrade it: the basis reports the proof's own status.
-    assert effective_status(get_basis("schoenfeld1976"), trusting) is Status.CLAIMED
+    assert effective_status(get_basis("schoenfeld1976"), trusting) is Status.LEAN_COMPILED
+    assert effective_status(get_basis("bach1990.miller"), trusting) is Status.CLAIMED
     assert effective_status(get_basis("schoenfeld1976"), lenient) is None
 
 

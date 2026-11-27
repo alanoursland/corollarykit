@@ -33,17 +33,27 @@ class Status(IntEnum):
         return self.name.lower().replace("_", "-")
 
 
+STATEMENT_MATCH_VALUES = ("unchecked", "partial", "checked")
+
+
 @dataclass(frozen=True)
 class Proof:
     id: str
     source: str
     status: Status
     statement_match: str
+    statement_match_source: str = ""
+
+    def __post_init__(self) -> None:
+        if self.statement_match not in STATEMENT_MATCH_VALUES:
+            raise ValueError(
+                f"proof {self.id!r}: statement_match must be one of {STATEMENT_MATCH_VALUES}"
+            )
 
     @property
     def effective_status(self) -> Status:
-        """A Lean proof whose statements nobody has matched counts as claimed."""
-        if self.status == Status.LEAN_COMPILED and self.statement_match == "unchecked":
+        """A Lean proof counts as claimed until its statement is matched to a vetted one."""
+        if self.status == Status.LEAN_COMPILED and self.statement_match != "checked":
             return Status.CLAIMED
         return self.status
 
@@ -201,16 +211,24 @@ def _parse_ceiling(raw: Any, bid: str) -> CeilingSpec | None:
     return CeilingSpec(kind=str(raw["kind"]), params=MappingProxyType(params))
 
 
+def _parse_proof(p: dict[str, Any], hid: str) -> Proof:
+    match = p["statement_match"]
+    source = str(p.get("statement_match_source", "")).strip()
+    if match != "unchecked" and not source:
+        raise ValueError(
+            f"hypothesis {hid!r} proof {p['id']!r}: statement_match = {match!r} requires "
+            "statement_match_source (who checked, against what, where)"
+        )
+    return Proof(p["id"], p["source"], Status.parse(p["status"]), match, source)
+
+
 def _parse(raw: dict[str, Any]) -> tuple[dict[str, Hypothesis], dict[str, Basis]]:
     hyps = {
         hid: Hypothesis(
             id=hid,
             statement=h["statement"],
             note=h.get("note", ""),
-            proofs=tuple(
-                Proof(p["id"], p["source"], Status.parse(p["status"]), p["statement_match"])
-                for p in h.get("proofs", [])
-            ),
+            proofs=tuple(_parse_proof(p, hid) for p in h.get("proofs", [])),
         )
         for hid, h in raw["hypotheses"].items()
     }
@@ -271,6 +289,7 @@ __all__ = [
     "ACCEPT_RH_ALPOGE",
     "BUILTIN_POLICIES",
     "DEFAULT",
+    "STATEMENT_MATCH_VALUES",
     "STRICT",
     "Basis",
     "CeilingSpec",

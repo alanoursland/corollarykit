@@ -24,7 +24,7 @@ As of 2026-11-25:
 
 | Result | Hypothesis settled | Status |
 |---|---|---|
-| Alpöge–Claude (Nov 20) | RH, and GRH for **Dirichlet** L-functions only (not Dedekind, Hecke or Artin) | `lean-compiled` |
+| Alpöge–Claude (Nov 20) | RH, and GRH for **Dirichlet** L-functions only (not Dedekind, Hecke or Artin) | `lean-compiled`. RH statement match **checked** (Lean FRO / Mathlib, Nov 21). Dirichlet-GRH statement match only **partial** (custom definitions, not vetted) |
 | OpenAI quasi-GRH (Oct 6) | No zeros with Re s > σ₀ for zeta and all Dirichlet L-functions. The registry uses σ₀ = 11/12, as stated in the repository paper; the catalog says 7/8 | `claimed` |
 | OpenAI no-Siegel-zeros (Oct 6) | Siegel zeros do not exist for zeta and many Dirichlet L-functions | `claimed` |
 | OpenAI strongly polynomial LP (Nov 24) | Smale's 9th problem | `claimed` (Lean covers rational inputs) |
@@ -82,8 +82,13 @@ A **spec** in `specs/` pins down the inputs, the bases for each policy, the comp
 | sat_count_subexp | research | Pick one algorithm. Extract its recurrences, base cases and arithmetic requirements. Write tests that exercise the contraction or interpolation steps directly, not only the fallbacks. |
 | unit_distance_construction | research | Grid: store integer coordinates plus a common squared scale m and check squared distances = m exactly. Tower: an explicit field, a finite lattice enumeration, and an output-size contract (the theorem gives a family of sets, not exactly n points). |
 
+## Candidates (not yet planned)
+
+- **1/5-approximate Nash equilibria in bimatrix games** (Google Cogentic batch, Nov 25, `claimed`; in `google-research/cogentic_research_papers`, not peer reviewed, Lean proofs not public). It improves the polynomial-time bound from 1/3 (Markakis, ACM TALG 2023). Unlike most results here, it is an algorithm with practical value at real sizes, so it could fit under `corollarykit.optimization` or `experimental`. It needs a T2 read before a plan file.
+
 ## Considered and dropped
 
+- **Unconditional factoring in L_N[1/3, 105]** (Google Cogentic batch, Nov 25, `claimed`). Rigorous L[1/3] factoring would be a real theoretical result. In practice the constant makes it useless: at N = 2²⁰⁴⁸ the cost is about e^4400, while trial division up to √N is about e^710. It only beats trial division once ln N is above roughly 30 000. The number field sieve (heuristic L[1/3, 1.92]) stays the practical method.
 - **Matrix multiplication (ω = 9/4).** Practical matrix multiplication uses the O(n³) algorithm, sometimes Strassen, tuned to the hardware. Exponent improvements below about 2.8 come with constants so large they never beat that at real sizes. A new exponent does not make `A @ B` faster.
 - **Navier–Stokes, Sogge local smoothing, Kakeya, non-sofic groups, Connes rigidity, Hodge, Fermat's Last Theorem in Lean.** These are existence or analysis results with nothing to compute that is faster or better guaranteed. We could revisit Navier–Stokes as a solver stress test later.
 - **Number-field GRH applications.** The November proof covers Dirichlet L-functions only. These need GRH for Dedekind, Hecke or Artin L-functions, so they stay conditional. The registry records them under `GRH-dedekind` / `GRH-hecke`, which have no proofs:

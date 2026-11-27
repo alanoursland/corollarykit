@@ -188,7 +188,10 @@ A second person checks it in review.
 | M5 | `cms2019`; `lls2015`; `bach_sorenson1996` (domain); Dusart 2018 gap bound (add to registry) |
 | M7 | `miller1976.phi`; `lidl_niederreiter.binomial` |
 
-Separately, the **statement match for `alpoge-claude-2026`**: check that the Lean theorem statements imply RH and GRH for Dirichlet L-functions as used here. Until that's done, `statement_match` stays `unchecked`, and `DEFAULT` keeps treating the proof as `claimed`. This is a mathematical review task, beyond transcription. If someone outside the project publishes such a check, record it with a citation.
+Separately, the **statement match for `alpoge-claude-2026`**, which is a mathematical review task, beyond transcription:
+- **RH: done externally.** The Lean FRO and Mathlib Initiative (Nov 21) confirmed with two independent tools that the theorem is exactly Mathlib's vetted `RiemannHypothesis`. Recorded as `statement_match = "checked"` with the citation. Still open: the shortened editions were checked against a newer Mathlib version than the original, and that equivalence hasn't been checked formally.
+- **Dirichlet GRH: partial.** It was checked only against custom definitions in the challenge file's `Statements.lean`, and Mathlib has no vetted GRH definition. Remaining task: review those definitions against the statements our bases use (all moduli, all characters, zeros with Re s > 1/2 excluded). Until then `statement_match = "partial"` and the proof counts as `claimed` for every Dirichlet-GRH basis.
+- In either case the proof stays `lean-compiled`, not `peer-verified`, until a human audit of the argument is published.
 
 ## Side track T2: Research reads
 
@@ -198,6 +201,7 @@ These gate the research milestones and some open questions. Each one produces a 
 |---|---|
 | OpenAI strongly polynomial LP paper (full PDF): operation-count exponent, inner-LP subroutine, calibration, and whether N in H = 2^(100N²) is the dimension or the input size | R1 |
 | One #SAT paper (pick Anthropic's or OpenAI's), with its recurrences and base cases | R2 |
+| Cogentic 1/5-approximate Nash paper: algorithm, complexity, and whether it is practical | a possible plan file (see planning README, Candidates) |
 | Bach (with co-author), FOCS 1985: the hypothesis behind Adleman–Lenstra Proposition 3 | `irreducible_polynomial` fallback options |
 | Buchmann–Shoup, full text: confirm the ERH it assumes | `irreducible_polynomial`, registry note |
 | Shoup 1992: an explicit constant for the least-primitive-root bound | a numeric `primitive_root` ceiling |
@@ -227,7 +231,7 @@ These ship only under `corollarykit.experimental`, and only after their T2 reads
 The first PyPI upload is 1.0, once the requirements above are met. There are no intermediate PyPI releases. Until then, people who want to try it install from a git checkout.
 
 Procedure, run locally (the project uses no GitHub Actions):
-1. Confirm the name `corollarykit` is still free on PyPI. Reserve nothing early.
+1. Check that the name `corollarykit` is still free on PyPI. If it has been taken, pick a new name. Nothing is reserved early.
 2. `scripts/check.sh --full --python python3.11 --python python3.12 --python python3.13`.
 3. Set the version to `1.0.0` and finalize `CHANGELOG.md`.
 4. `python -m build`, then upload to TestPyPI and install from there into a fresh venv as a smoke test.

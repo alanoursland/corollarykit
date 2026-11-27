@@ -23,7 +23,12 @@
 # in a commit of its own.
 #
 # Status vocabulary (strongest first): classical, peer-verified, lean-compiled, claimed.
-# A lean-compiled proof with statement_match = "unchecked" counts as claimed.
+# Proof field statement_match: whether the formal statement has been checked to say what
+# the hypothesis says. One of:
+#   unchecked  nobody has compared them
+#   partial    compared against something that is not itself vetted (e.g. custom defs)
+#   checked    compared against a vetted statement; cite it in statement_match_source
+# A lean-compiled proof counts as claimed unless statement_match = "checked".
 
 # ---------------------------------------------------------------- hypotheses
 
@@ -34,7 +39,16 @@ statement = "All nontrivial zeros of the Riemann zeta function have real part 1/
 id = "alpoge-claude-2026"
 source = "L. Alpöge (with Claude), alpo.ge/remark.pdf and Lean archive, 2026-11-20"
 status = "lean-compiled"
-statement_match = "unchecked"
+statement_match = "checked"
+statement_match_source = """\
+Lean FRO and Mathlib Initiative joint statement, 2026-11-21 \
+(leanprover-community.github.io/blog/posts/riemann-hypothesis/): the proved theorem is \
+exactly Mathlib's vetted RiemannHypothesis, confirmed by two independent tools \
+(comparator, con-leche --compare). Third confirmation by con-ron --compare and kernel \
+replays (A. Sutherland, math.mit.edu/~drew/grh/). Shortened editions: readable and compact \
+pass lake comparator --paranoid, 2026-11-26 (math.mit.edu/~drew/shortgrh/), checked \
+against Mathlib 56a00585, not the original's 0df444a3; that equivalence is unchecked. \
+No human audit of the argument yet. Recorded 2026-11-27."""
 
 [hypotheses.GRH-dirichlet]
 statement = "For every Dirichlet character chi, all nontrivial zeros of L(s, chi) have real part 1/2."
@@ -44,7 +58,15 @@ note = "Does NOT cover Dedekind, Hecke, Artin or other automorphic L-functions."
 id = "alpoge-claude-2026"
 source = "L. Alpöge (with Claude), alpo.ge/remark.pdf and Lean archive, 2026-11-20"
 status = "lean-compiled"
-statement_match = "unchecked"
+statement_match = "partial"
+statement_match_source = """\
+Machine-checked only against custom Prop definitions in the challenge file's \
+Statements.lean (built on Mathlib's DirichletCharacter.LFunction), via comparator and \
+con-ron --compare (A. Sutherland, math.mit.edu/~drew/grh/: "'GRH' here means Dirichlet \
+L-functions: all moduli and all characters"). Mathlib has no vetted GRH definition, and \
+the joint Lean FRO / Mathlib statement covers classical RH only. Still needed: an \
+independent check that those Statements.lean definitions state GRH for Dirichlet \
+L-functions as our bases use it. Recorded 2026-11-27."""
 
 [hypotheses.quasi-GRH-dirichlet]
 statement = "No zeta or Dirichlet L-function has a zero with real part > 11/12."

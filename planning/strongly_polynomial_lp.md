@@ -59,4 +59,5 @@ We will implement it in exact rationals (the formalized case), with an interior-
 
 - Read the full PDF: we need the exact operation-count exponent, the subroutine used in step 3, and the parts not yet read (calibration, compression, prices).
 - Is N in H = 2^(100N²) the dimension or the input size? This decides whether it can be implemented at all for n in the hundreds.
+- **Cost accounting for the inner LPs** (from a Gemini review, Nov 26, not yet confirmed against the paper): the step count is strongly polynomial, but some intermediate comparisons reportedly have degree exponential in the dimensions, and rescaled queries are answered by calling an ordinary polynomial-time LP solver on short rational data. The second part matches our reading of `lp.tex` (step 3 above). If the first part holds, the operation-count experiment must count those comparisons, and the inner solver's bit complexity, separately from the outer steps.
 - Status: `claimed`. No outside review yet.

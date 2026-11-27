@@ -41,10 +41,10 @@ The constants marked ⚠ must be copied from the cited source and checked agains
 | `rosser_schoenfeld1962.upper` | π(x) < 1.25506·x/ln x ⚠ | x > 1 | none | `classical` |
 | `dusart2010.lower` | π(x) ≥ x/ln x·(1 + 1/ln x + 2/ln²x) ⚠ | x ≥ 88 789 ⚠ | none | `classical` |
 | `dusart2010.upper` | π(x) ≤ x/ln x·(1 + 1/ln x + 2.334/ln²x) ⚠ | x ≥ 2 953 652 287 ⚠ | none | `classical` |
-| `schoenfeld1976` | \|π(x) − li(x)\| < √x·ln x/(8π), where **li is the principal value ∫₀ˣ dt/ln t, not the offset Li** | x ≥ 2657 | RH | `lean-compiled`, `statement_match = unchecked` |
+| `schoenfeld1976` | \|π(x) − li(x)\| < √x·ln x/(8π), where **li is the principal value ∫₀ˣ dt/ln t, not the offset Li** | x ≥ 2657 | RH | `lean-compiled`, `statement_match = checked` (Lean FRO / Mathlib, 2026-11-21) |
 
 **Policies:**
-- `default`: accepts `classical` only. Because `statement_match` is unchecked, `schoenfeld1976` is treated as `claimed` and is **off by default**.
+- `default`: accepts `classical` only. The RH proof is `lean-compiled` (statement matched, no human audit yet), so `schoenfeld1976` is **off by default**.
 - `accept_rh_alpoge`: `default` plus `schoenfeld1976`, enabled explicitly.
 - `strict`: the same as `default` here. It differs from `default` only once a `peer-verified` basis exists.
 
